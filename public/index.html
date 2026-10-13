@@ -227,16 +227,6 @@
       opacity: 0.85;
       font-weight: 500;
     }
-    .ver-backend-tag {
-      font-size: 10.5px;
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.08);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      padding: 2px 7px;
-      border-radius: 8px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
 
     .nav-right {
       display: flex;
@@ -1363,7 +1353,7 @@
     }
     .bt-summary-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 10px;
       flex-shrink: 0;
     }
@@ -1787,6 +1777,108 @@
       line-height: 1.3;
     }
 
+    /* ========================================================= */
+    /* 连输反转 (CONSECUTIVE-LOSS REVERSAL) STYLES               */
+    /* ========================================================= */
+    .rev-help-btn {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      background: rgba(56, 189, 248, 0.12);
+      color: #7dd3fc;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1;
+      padding: 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .rev-help-btn:hover,
+    .rev-help-btn.active {
+      background: #0ea5e9;
+      border-color: #38bdf8;
+      color: #fff;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+    }
+    .rev-inline-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 5px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+    .rev-num-input {
+      width: 44px;
+      padding: 3px 4px;
+      text-align: center;
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 5px;
+      color: #f8fafc;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+    .rev-num-input:focus {
+      outline: none;
+      border-color: #38bdf8;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.35);
+    }
+    .rev-state-badge {
+      margin-left: auto;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 8px;
+      font-weight: 600;
+      white-space: nowrap;
+      background: #334155;
+      color: #94a3b8;
+    }
+    .rev-state-badge.on {
+      background: rgba(168, 85, 247, 0.2);
+      color: #c084fc;
+      border: 1px solid rgba(192, 132, 252, 0.4);
+    }
+    .rev-state-badge.locked {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.4);
+    }
+    .rev-help-pop {
+      font-size: 11px;
+      line-height: 1.65;
+      color: #cbd5e1;
+      background: #0f172a;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 8px;
+      padding: 9px 11px;
+    }
+    .rev-help-pop b {
+      color: #7dd3fc;
+    }
+    .rev-help-pop .rev-help-title {
+      display: block;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-bottom: 4px;
+    }
+    .order-rev-badge {
+      margin-left: 4px;
+      font-size: 9px;
+      padding: 1px 4px;
+      border-radius: 4px;
+      background: rgba(168, 85, 247, 0.2);
+      color: #c084fc;
+      border: 1px solid rgba(192, 132, 252, 0.45);
+      font-weight: 700;
+    }
+
     /* Follow Toggle Switch */
     .trade-switch-wrap {
       display: flex;
@@ -2151,7 +2243,7 @@
       flex-shrink: 0;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      gap: 6px;
     }
     @media (max-width: 600px) {
       .trade-stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -2159,11 +2251,11 @@
     .trade-stat-card {
       background: #131d33;
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 8px;
-      padding: 8px 10px;
+      border-radius: 7px;
+      padding: 5px 8px;
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 1px;
     }
     .trade-stat-card.highlight-pnl {
       background: linear-gradient(135deg, #131d33, #1e293b);
@@ -2171,12 +2263,13 @@
       box-shadow: 0 0 12px rgba(59, 130, 246, 0.15);
     }
     .stat-card-title {
-      font-size: 11px;
+      font-size: 10px;
       color: #64748b;
       font-weight: 600;
+      white-space: nowrap;
     }
     .stat-card-val {
-      font-size: 15px;
+      font-size: 14px;
       font-family: 'JetBrains Mono', monospace;
       font-weight: 800;
       color: #f8fafc;
@@ -2184,10 +2277,6 @@
     .stat-card-val.pnl-positive { color: #4ade80; }
     .stat-card-val.pnl-negative { color: #f87171; }
     .stat-card-val.pnl-zero { color: #94a3b8; }
-    .stat-card-sub {
-      font-size: 10px;
-      color: #94a3b8;
-    }
 
     /* Orders Section Header & Controls */
     .orders-section-header {
@@ -2536,9 +2625,6 @@
             <span class="ver-desc-tag">(多周期顺势)</span>
           </button>
         </div>
-        <div class="ver-backend-tag" title="双引擎后台全天候独立运行，切换版本即享真实订单与胜率">
-          🟢 后台实时运行
-        </div>
       </div>
     </div>
 
@@ -2635,6 +2721,8 @@
       <span class="sig-cur-badge" id="sig-cur-badge">当前图表标记: 3分钟合约信号</span>
     </div>
   </div>
+
+
 
   <!-- 3. MAIN LAYOUT CONTAINER -->
   <main class="main-container">
@@ -2791,7 +2879,7 @@
         </div>
 
         <div class="bt-modal-desc-banner">
-          <span>🎯 基于今日真实行情与实盘信号推演的量化统计，同时展示<strong>正式版</strong>与<strong>顺势版</strong>在 <strong>BTC</strong> 与 <strong>ETH</strong> 上的多周期实盘胜率。</span>
+          <span>🎯 基于今日真实行情与实盘信号推演的量化统计，同时展示<strong>正式版</strong>与<strong>顺势版</strong>在 <strong>BTC</strong> 与 <strong>ETH</strong> 上的实盘胜率。</span>
         </div>
 
         <!-- 4-Card Simultaneous Matrix: 2x2 Grid -->
@@ -2912,32 +3000,26 @@
           <div class="trade-stat-card highlight-pnl">
             <div class="stat-card-title">💰 累计总盈亏</div>
             <div class="stat-card-val pnl-zero" id="stat-total-pnl">0.00 U</div>
-            <div class="stat-card-sub" id="stat-pnl-roi">净收益回报率: 0.0%</div>
           </div>
           <div class="trade-stat-card">
             <div class="stat-card-title">🎯 结算胜率</div>
             <div class="stat-card-val" id="stat-win-rate">0.0%</div>
-            <div class="stat-card-sub" id="stat-settled-count">已结算 0 单</div>
           </div>
           <div class="trade-stat-card">
             <div class="stat-card-title">📊 总下单数</div>
             <div class="stat-card-val" id="stat-total-orders">0 单</div>
-            <div class="stat-card-sub" id="stat-total-invested">总投入: 0.00 U</div>
           </div>
           <div class="trade-stat-card">
             <div class="stat-card-title">🟢 盈利胜单 (+80%)</div>
             <div class="stat-card-val" style="color: #4ade80;" id="stat-win-orders">0 单</div>
-            <div class="stat-card-sub" id="stat-win-pnl">+0.00 U</div>
           </div>
           <div class="trade-stat-card">
             <div class="stat-card-title">🔴 亏损负单 (-100%)</div>
             <div class="stat-card-val" style="color: #f87171;" id="stat-loss-orders">0 单</div>
-            <div class="stat-card-sub" id="stat-loss-pnl">-0.00 U</div>
           </div>
           <div class="trade-stat-card">
             <div class="stat-card-title">⏳ 正在持仓中</div>
             <div class="stat-card-val" style="color: #facc15;" id="stat-pending-orders">0 单</div>
-            <div class="stat-card-sub">等待周期结算</div>
           </div>
         </div>
 
@@ -3107,6 +3189,38 @@
               <button class="trade-quick-btn" data-amt="100">100U</button>
             </div>
             <div class="trade-control-desc">下单后命中到期方向胜出赚80%，错误亏损该本金</div>
+          </div>
+
+          <!-- 连输反转 Control Group -->
+          <div class="trade-control-group" style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 10px;">
+            <div class="trade-control-title" style="justify-content: space-between;">
+              <span style="display: flex; align-items: center; gap: 6px;">
+                <span id="rev-title-text">🔄 连输反转</span>
+                <button type="button" class="rev-help-btn" id="rev-help-btn" title="点击查看连输反转规则说明">?</button>
+              </span>
+              <div class="trade-switch-wrap" style="margin-top:0;">
+                <label class="trade-switch">
+                  <input type="checkbox" id="rev-enable-toggle">
+                  <span class="trade-slider"></span>
+                </label>
+              </div>
+            </div>
+            <div class="rev-inline-row">
+              <span>连输</span>
+              <input type="number" id="rev-m-input" class="rev-num-input" min="1" max="99" step="1" value="3">
+              <span>单后，下面</span>
+              <input type="number" id="rev-n-input" class="rev-num-input" min="1" max="99" step="1" value="3">
+              <span>单跟信号反着开</span>
+              <span class="rev-state-badge" id="rev-state-badge">未开启</span>
+            </div>
+            <div class="rev-help-pop" id="rev-help-pop" style="display: none;">
+              <span class="rev-help-title">🔄 连输反转规则说明</span>
+              <span id="rev-help-dynamic">连输 3 单后，下面 3 单跟信号反着开。</span><br>
+              ① 连续亏损达到 <b>m 单</b>时启动反转：接下来的 <b>n 单</b>按信号相反方向开仓（信号做多则开空，信号做空则开多）。<br>
+              ② 反转的这 <b>n 单</b>全部结算之前，<b>不会再启动新的反转</b>。<br>
+              ③ 反转的这 <b>n 单</b>全部结算后，若期间没有出现胜单，也<b>不会</b>再反转。<br>
+              ④ 直到这 <b>n 单</b>结算之后再出现一次<b>胜单</b>（反转单本身胜出<b>不计</b>），且之后再次连输 <b>m 单</b>，才会重新启动连输反转。
+            </div>
           </div>
         </div>
       </div>
@@ -5402,23 +5516,25 @@
 
         // Update Version Badges on Cards
         const verLabel = AppState.version === 'trend' ? '顺势版' : '正式版';
+        const verBg = AppState.version === 'trend' ? 'rgba(16,185,129,0.15)' : 'rgba(37,99,235,0.15)';
+        const verColor = AppState.version === 'trend' ? '#34d399' : '#60a5fa';
         const tagSig = document.getElementById('cur-ver-tag-signals');
         const tagNotif = document.getElementById('cur-ver-tag-notifs');
         const tagBt = document.getElementById('cur-ver-tag-bt');
         if (tagSig) {
           tagSig.textContent = verLabel;
-          tagSig.style.background = AppState.version === 'trend' ? 'rgba(16,185,129,0.15)' : 'rgba(37,99,235,0.15)';
-          tagSig.style.color = AppState.version === 'trend' ? '#34d399' : '#60a5fa';
+          tagSig.style.background = verBg;
+          tagSig.style.color = verColor;
         }
         if (tagNotif) {
           tagNotif.textContent = verLabel;
-          tagNotif.style.background = AppState.version === 'trend' ? 'rgba(16,185,129,0.15)' : 'rgba(37,99,235,0.15)';
-          tagNotif.style.color = AppState.version === 'trend' ? '#34d399' : '#60a5fa';
+          tagNotif.style.background = verBg;
+          tagNotif.style.color = verColor;
         }
         if (tagBt) {
           tagBt.textContent = verLabel;
-          tagBt.style.background = AppState.version === 'trend' ? 'rgba(16,185,129,0.15)' : 'rgba(37,99,235,0.15)';
-          tagBt.style.color = AppState.version === 'trend' ? '#34d399' : '#60a5fa';
+          tagBt.style.background = verBg;
+          tagBt.style.color = verColor;
         }
 
         // Update Signals Card & Stats
@@ -6211,7 +6327,22 @@
         amount: 10,
         followVersions: ['official', 'trend'],
         followCoins: ['BTC', 'ETH'],
-        followTimeframes: ['3m', '5m', '10m', '15m']
+        followTimeframes: ['3m', '5m', '10m', '15m'],
+        // 连输反转设置：连输 m 单后，下面 n 单跟信号反着开
+        reversal: {
+          enabled: false,
+          m: 3,
+          n: 3
+        },
+        // 连输反转运行状态
+        reversalState: {
+          lossStreak: 0,      // 连续亏损计数（仅统计正常单）
+          batchActive: false, // 反转批次进行中
+          batchPlaced: 0,     // 本批次已发出的反转单数
+          batchOpen: 0,       // 本批次仍未结算的反转单数
+          batchHadWin: false, // 本批次结算期间是否出现过胜单（反转单胜出不计）
+          locked: false       // 批次结算后锁定：需再出现一次胜单才解锁
+        }
       },
 
       orders: [],
@@ -6300,6 +6431,25 @@
               this.settings.followTimeframes = parsed.followTimeframes;
             } else {
               this.settings.followTimeframes = ['3m', '5m', '10m', '15m'];
+            }
+
+            if (parsed.reversal && typeof parsed.reversal === 'object') {
+              this.settings.reversal = {
+                enabled: !!parsed.reversal.enabled,
+                m: Math.max(1, Number(parsed.reversal.m) || 3),
+                n: Math.max(1, Number(parsed.reversal.n) || 3)
+              };
+            }
+            if (parsed.reversalState && typeof parsed.reversalState === 'object') {
+              const rs = parsed.reversalState;
+              this.settings.reversalState = {
+                lossStreak: Math.max(0, Number(rs.lossStreak) || 0),
+                batchActive: !!rs.batchActive,
+                batchPlaced: Math.max(0, Number(rs.batchPlaced) || 0),
+                batchOpen: Math.max(0, Number(rs.batchOpen) || 0),
+                batchHadWin: !!rs.batchHadWin,
+                locked: !!rs.locked
+              };
             }
           }
         } catch (e) {}
@@ -6525,6 +6675,7 @@
                   order.status = 'LOSS';
                   order.pnl = -Number(order.amount.toFixed(2));
                 }
+                this.onOrderSettled(order, isWin);
                 changed = true;
               }
             }
@@ -6538,8 +6689,68 @@
         }
       },
 
+      // 连输反转：判断当前这笔单是否需要反着信号开仓
+      markReversalForNewOrder() {
+        const rev = this.settings.reversal || { enabled: false, m: 3, n: 3 };
+        const rs = this.settings.reversalState;
+        if (!rs || !rev.enabled) return false;
+
+        const m = Math.max(1, Number(rev.m) || 1);
+        const n = Math.max(1, Number(rev.n) || 1);
+
+        // 条件：未处于反转批次中、未被锁定、且连输已达 m 单
+        if (!rs.batchActive && !rs.locked && rs.lossStreak >= m) {
+          rs.batchActive = true;
+          rs.batchPlaced = 0;
+          rs.batchOpen = 0;
+          rs.batchHadWin = false;
+        }
+
+        // 反转批次内，前 n 单全部反着信号开（结算前不再启动新的反转）
+        if (rs.batchActive && rs.batchPlaced < n) {
+          rs.batchPlaced++;
+          rs.batchOpen++;
+          rs.lossStreak = 0; // 反转单不计入连输计数，反转期间冻结连输
+          return true;
+        }
+        return false;
+      },
+
+      // 连输反转：订单结算后推进反转状态机
+      onOrderSettled(order, isWin) {
+        const rs = this.settings.reversalState;
+        if (!rs) return;
+
+        if (order.reversed) {
+          // 反转单：胜出不计入“胜单”，仅递减批次未结算计数
+          if (rs.batchOpen > 0) rs.batchOpen--;
+          if (rs.batchActive && rs.batchOpen <= 0) {
+            // 反转的 n 单已全部结算
+            rs.batchActive = false;
+            rs.batchPlaced = 0;
+            rs.batchOpen = 0;
+            rs.lossStreak = 0;
+            // 批次期间没有出现胜单 -> 锁定，需再出现胜单才解锁
+            rs.locked = !rs.batchHadWin;
+            rs.batchHadWin = false;
+          }
+        } else if (isWin) {
+          rs.lossStreak = 0;
+          if (rs.batchActive) {
+            rs.batchHadWin = true; // 批次结算期间出现胜单，批次结束后不锁定
+          } else {
+            rs.locked = false;     // 批次结束后再次出现胜单，解除锁定
+          }
+        } else if (!rs.locked) {
+          rs.lossStreak++;
+        }
+      },
+
       createOrderFromSignal(s) {
-        const isBuy = s.type === '做多' || s.typeKey === 'BUY';
+        // 连输反转判定：命中则本单反着信号开
+        const isReversed = this.markReversalForNewOrder();
+        const signalIsBuy = s.type === '做多' || s.typeKey === 'BUY';
+        const isBuy = isReversed ? !signalIsBuy : signalIsBuy;
         const amount = Math.max(5, Number(this.settings.amount) || 10);
         const tfMs = this.getTfMs(s.timeframe || '3m');
         let settleTime = s.settleTime;
@@ -6558,6 +6769,7 @@
           timeframe: s.timeframe || '3m',
           type: isBuy ? '做多' : '做空',
           typeKey: isBuy ? 'BUY' : 'SELL',
+          reversed: isReversed,
           amount: amount,
           entryPrice: Number(s.price),
           settlePrice: null,
@@ -6611,6 +6823,7 @@
                 order.status = 'LOSS';
                 order.pnl = -Number(order.amount.toFixed(2));
               }
+              this.onOrderSettled(order, isWin);
               changed = true;
             }
           }
@@ -6633,6 +6846,14 @@
         if (!this.orders.length) return;
         if (confirm('确定要清空所有已下单的记录吗？清空后统计数据将重置。')) {
           this.orders = [];
+          this.settings.reversalState = {
+            lossStreak: 0,
+            batchActive: false,
+            batchPlaced: 0,
+            batchOpen: 0,
+            batchHadWin: false,
+            locked: false
+          };
           this.saveState();
           this.renderOrdersUI();
           this.updateStatsUI();
@@ -6680,7 +6901,14 @@
             badge.textContent = '跟随: 未生效';
             badge.classList.remove('on');
           } else {
-            const verText = (hasOfficial && hasTrend) ? '双版本' : (hasOfficial ? '正式版' : '顺势版');
+            let verText = '';
+            if (hasOfficial && hasTrend) {
+              verText = '双版本';
+            } else if (hasOfficial) {
+              verText = '正式';
+            } else if (hasTrend) {
+              verText = '顺势';
+            }
             const coinText = followCoins.length === 2 ? 'BTC+ETH' : followCoins.join('/');
             const tfText = followTfs.length === 4 ? '全周期' : followTfs.join('/');
             badge.textContent = `跟随: ${verText}·${coinText}·${tfText} (${this.settings.amount}U)`;
@@ -6711,7 +6939,7 @@
 
         if (verStatusBadge) {
           if (hasOfficial && hasTrend) {
-            verStatusBadge.textContent = '跟随: 正式版 + 顺势版 (双版本)';
+            verStatusBadge.textContent = '跟随: 正式版 + 顺势版 (双版本全开)';
             verStatusBadge.style.color = '#38bdf8';
             verStatusBadge.style.borderColor = 'rgba(56, 189, 248, 0.4)';
           } else if (hasOfficial) {
@@ -6844,6 +7072,75 @@
         if (elLossOrders) elLossOrders.textContent = `${lossOrders.length} 单`;
         if (elLossPnl) elLossPnl.textContent = `${lossPnl.toFixed(2)} U`;
         if (elPending) elPending.textContent = `${pendingOrders.length} 单`;
+
+        this.renderReversalUI();
+      },
+
+      // =========================================================
+      // 连输反转 (CONSECUTIVE-LOSS REVERSAL) UI & SETTINGS
+      // =========================================================
+      setReversalEnabled(enabled) {
+        const rev = this.settings.reversal;
+        rev.enabled = !!enabled;
+        // 每次开启/关闭都重置反转状态机，避免残留旧批次
+        this.settings.reversalState = {
+          lossStreak: 0,
+          batchActive: false,
+          batchPlaced: 0,
+          batchOpen: 0,
+          batchHadWin: false,
+          locked: false
+        };
+        this.saveState();
+        this.renderReversalUI();
+      },
+
+      setReversalM(val) {
+        const num = Math.min(99, Math.max(1, parseInt(val, 10) || 1));
+        this.settings.reversal.m = num;
+        this.saveState();
+        this.renderReversalUI();
+      },
+
+      setReversalN(val) {
+        const num = Math.min(99, Math.max(1, parseInt(val, 10) || 1));
+        this.settings.reversal.n = num;
+        this.saveState();
+        this.renderReversalUI();
+      },
+
+      renderReversalUI() {
+        const rev = this.settings.reversal || { enabled: false, m: 3, n: 3 };
+        const rs = this.settings.reversalState || {};
+
+        const toggle = document.getElementById('rev-enable-toggle');
+        const mInput = document.getElementById('rev-m-input');
+        const nInput = document.getElementById('rev-n-input');
+        const badge = document.getElementById('rev-state-badge');
+        const helpDynamic = document.getElementById('rev-help-dynamic');
+
+        if (toggle) toggle.checked = !!rev.enabled;
+        if (mInput && document.activeElement !== mInput) mInput.value = rev.m;
+        if (nInput && document.activeElement !== nInput) nInput.value = rev.n;
+
+        if (helpDynamic) {
+          helpDynamic.textContent = `连输 ${rev.m} 单后，下面 ${rev.n} 单跟信号反着开。`;
+        }
+
+        if (badge) {
+          badge.classList.remove('on', 'locked');
+          if (!rev.enabled) {
+            badge.textContent = '未开启';
+          } else if (rs.batchActive) {
+            badge.textContent = `反转中 ${rs.batchPlaced}/${rev.n} 单`;
+            badge.classList.add('on');
+          } else if (rs.locked) {
+            badge.textContent = '已反转·等胜单解锁';
+            badge.classList.add('locked');
+          } else {
+            badge.textContent = `连输 ${rs.lossStreak || 0}/${rev.m}`;
+          }
+        }
       },
 
       renderOrdersUI() {
@@ -6864,15 +7161,17 @@
           const timeStr = formatBeijingTime(order.createTime);
 
           const ver = order.version || 'official';
-          const verBadge = ver === 'trend'
-            ? `<span class="order-ver-badge order-ver-trend">顺势版</span>`
-            : `<span class="order-ver-badge order-ver-official">正式版</span>`;
+          let verBadge = `<span class="order-ver-badge order-ver-official">正式版</span>`;
+          if (ver === 'trend') {
+            verBadge = `<span class="order-ver-badge order-ver-trend">顺势版</span>`;
+          }
 
           const coinBadgeCls = order.coin === 'BTC' ? 'order-coin-btc' : 'order-coin-eth';
           const isBuy = order.typeKey === 'BUY' || order.type === '做多';
           const dirBadgeCls = isBuy ? 'order-dir-buy' : 'order-dir-sell';
           const dirText = isBuy ? '多' : '空';
           const dirBadge = `<span class="order-dir-badge ${dirBadgeCls}">${dirText}</span>`;
+          const revBadge = order.reversed ? `<span class="order-rev-badge">反转</span>` : '';
 
           const formattedEntry = Number(order.entryPrice).toFixed(order.coin === 'ETH' ? 2 : 1);
           let formattedSettle = '--';
@@ -6904,7 +7203,7 @@
               <span class="order-coin-badge ${coinBadgeCls}">${order.coin}</span>
               <span style="font-size:10px; color:#94a3b8; margin-left:3px;">${order.timeframe}</span>
             </td>
-            <td style="width: 10%;">${dirBadge}</td>
+            <td style="width: 10%;">${dirBadge}${revBadge}</td>
             <td style="width: 10%; font-weight:700;">${Number(order.amount).toFixed(1)} U</td>
             <td style="width: 12%;">${formattedEntry}</td>
             <td style="width: 12%;">${formattedSettle}</td>
@@ -7028,6 +7327,39 @@
         if (clearBtn) {
           clearBtn.addEventListener('click', () => this.clearAllOrders());
         }
+
+        // 连输反转：开关与 m / n 输入
+        const revToggle = document.getElementById('rev-enable-toggle');
+        if (revToggle) {
+          revToggle.addEventListener('change', (e) => this.setReversalEnabled(e.target.checked));
+        }
+
+        const revMInput = document.getElementById('rev-m-input');
+        if (revMInput) {
+          revMInput.addEventListener('change', (e) => this.setReversalM(e.target.value));
+          revMInput.addEventListener('blur', (e) => this.setReversalM(e.target.value));
+        }
+
+        const revNInput = document.getElementById('rev-n-input');
+        if (revNInput) {
+          revNInput.addEventListener('change', (e) => this.setReversalN(e.target.value));
+          revNInput.addEventListener('blur', (e) => this.setReversalN(e.target.value));
+        }
+
+        // 连输反转：鼠标点击“?”或标题显示/隐藏规则说明
+        const revHelpBtn = document.getElementById('rev-help-btn');
+        const revTitleText = document.getElementById('rev-title-text');
+        const revHelpPop = document.getElementById('rev-help-pop');
+        const toggleRevHelp = () => {
+          if (!revHelpPop) return;
+          const show = revHelpPop.style.display === 'none';
+          revHelpPop.style.display = show ? 'block' : 'none';
+          if (revHelpBtn) revHelpBtn.classList.toggle('active', show);
+        };
+        if (revHelpBtn) revHelpBtn.addEventListener('click', toggleRevHelp);
+        if (revTitleText) revTitleText.addEventListener('click', toggleRevHelp);
+
+        this.renderReversalUI();
       }
     };
     window.TradeEngine = TradeEngine;
@@ -7043,23 +7375,25 @@
           btn.classList.toggle('active', v === AppState.version);
         });
         const verLabel = AppState.version === 'trend' ? '顺势版' : '正式版';
+        const verBg = AppState.version === 'trend' ? 'rgba(16,185,129,0.15)' : 'rgba(37,99,235,0.15)';
+        const verColor = AppState.version === 'trend' ? '#34d399' : '#60a5fa';
         const tagSig = document.getElementById('cur-ver-tag-signals');
         const tagNotif = document.getElementById('cur-ver-tag-notifs');
         const tagBt = document.getElementById('cur-ver-tag-bt');
         if (tagSig) {
           tagSig.textContent = verLabel;
-          tagSig.style.background = AppState.version === 'trend' ? 'rgba(16,185,129,0.15)' : 'rgba(37,99,235,0.15)';
-          tagSig.style.color = AppState.version === 'trend' ? '#34d399' : '#60a5fa';
+          tagSig.style.background = verBg;
+          tagSig.style.color = verColor;
         }
         if (tagNotif) {
           tagNotif.textContent = verLabel;
-          tagNotif.style.background = AppState.version === 'trend' ? 'rgba(16,185,129,0.15)' : 'rgba(37,99,235,0.15)';
-          tagNotif.style.color = AppState.version === 'trend' ? '#34d399' : '#60a5fa';
+          tagNotif.style.background = verBg;
+          tagNotif.style.color = verColor;
         }
         if (tagBt) {
           tagBt.textContent = verLabel;
-          tagBt.style.background = AppState.version === 'trend' ? 'rgba(16,185,129,0.15)' : 'rgba(37,99,235,0.15)';
-          tagBt.style.color = AppState.version === 'trend' ? '#34d399' : '#60a5fa';
+          tagBt.style.background = verBg;
+          tagBt.style.color = verColor;
         }
       };
 
@@ -7076,6 +7410,9 @@
             loadKlinesData();
             loadNotifications();
             loadSignalPredictions();
+            if (document.getElementById('bt-modal-mask') && document.getElementById('bt-modal-mask').style.display !== 'none') {
+              fetchBacktestStats();
+            }
           }
         });
       });

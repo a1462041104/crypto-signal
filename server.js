@@ -34,6 +34,7 @@ app.use((req, res, next) => {
   }
   next();
 });
+app.use(express.json());
 
 // Middleware: Request Logger (only logs errors or when DEBUG_HTTP is set to minimize I/O on low-end servers)
 if (process.env.DEBUG_HTTP) {
@@ -622,8 +623,8 @@ function calculateKC(candles, period = 20, atrPeriod = 14, multiplier = 1.8) {
 
 // ==========================================
 // ==========================================
-// PERSISTENT SIGNAL REGISTRY & DUAL-ENGINE SETTLEMENT
-// 支持【正式版】与【顺势版】双引擎后台独立运行，绝不休眠
+// PERSISTENT SIGNAL REGISTRY & MULTI-ENGINE SETTLEMENT
+// 支持【正式版】、【顺势版】与【半自动】三引擎后台独立运行，绝不休眠
 // 严格只保留与记录当天真实发出的信号，绝不回溯历史时间
 // ==========================================
 const SIGNALS_FILE = path.join(__dirname, 'signals_registry.json');
@@ -659,23 +660,80 @@ function isToday(timestamp) {
   return Math.floor((ms + 28800000) / 86400000) === Math.floor((Date.now() + 28800000) / 86400000);
 }
 
+// 14. Fibonacci Retracement & Extension Analysis
+function calculateFibonacciLevels(candles, lookback = 50) {
+  if (!candles || candles.length < 10) return null;
+  const slice = candles.slice(-lookback);
+  let highestHigh = -Infinity;
+  let lowestLow = Infinity;
+  let highestIdx = -1;
+  let lowestIdx = -1;
+
+  for (let i = 0; i < slice.length; i++) {
+    if (slice[i].high > highestHigh) {
+      highestHigh = slice[i].high;
+      highestIdx = i;
+    }
+    if (slice[i].low < lowestLow) {
+      lowestLow = slice[i].low;
+      lowestIdx = i;
+    }
+  }
+
+  const range = highestHigh - lowestLow;
+  if (range <= 0) return null;
+  const isUpmove = highestIdx > lowestIdx;
+
+  return {
+    high: highestHigh,
+    low: lowestLow,
+    range: range,
+    isUpmove,
+    fib236: highestHigh - range * 0.236,
+    fib382: highestHigh - range * 0.382,
+    fib500: highestHigh - range * 0.500,
+    fib618: highestHigh - range * 0.618,
+    fib786: highestHigh - range * 0.786,
+    fib1272: isUpmove ? highestHigh + range * 0.272 : lowestLow - range * 0.272,
+    fib1618: isUpmove ? highestHigh + range * 0.618 : lowestLow - range * 0.618
+  };
+}
+
+// 15. Volume-Price Confluence Analysis (量价关系)
+function analyzeVolumePrice(candles, period = 20) {
+  if (!candles || candles.length < period) {
+    return { volRatio: 1.0, isVolumeSpike: false, isPriceVolumeBullish: false, isPriceVolumeBearish: false, isLowVolumePullback: false };
+  }
+  const n = candles.length;
+  const recent = candles.slice(-period);
+  const avgVol = recent.reduce((sum, c) => sum + (c.volume || 0), 0) / period;
+  const curr = candles[n - 1];
+  const prev = candles[n - 2];
+  const volRatio = avgVol > 0 ? (curr.volume || 0) / avgVol : 1.0;
+
+  const isUp = curr.close > curr.open;
+  const isDown = curr.close < curr.open;
+  const priceChange = prev ? (curr.close - prev.close) / prev.close : 0;
+
+  return {
+    volRatio,
+    isVolumeSpike: volRatio >= 1.25,
+    isPriceVolumeBullish: isUp && volRatio >= 1.15 && priceChange > 0.0005,
+    isPriceVolumeBearish: isDown && volRatio >= 1.15 && priceChange < -0.0005,
+    isLowVolumePullback: volRatio <= 0.85,
+    avgVol
+  };
+}
+
 function loadSignalRegistry() {
   try {
     if (fs.existsSync(SIGNALS_FILE)) {
       const content = fs.readFileSync(SIGNALS_FILE, 'utf8');
       const parsed = JSON.parse(content);
-      if (parsed.official || parsed.trend) {
-        signalRegistry = {
-          official: parsed.official || {},
-          trend: parsed.trend || {}
-        };
-      } else {
-        // 平滑升级旧版扁平结构至 official
-        signalRegistry = {
-          official: parsed,
-          trend: {}
-        };
-      }
+      signalRegistry = {
+        official: parsed.official || (parsed.trend ? {} : parsed) || {},
+        trend: parsed.trend || {}
+      };
       // 严格只保留当天真实发出的信号，清理所有历史/非当天的旧记录，并确保统一转换为北京时间
       for (const ver of ['official', 'trend']) {
         const bucket = signalRegistry[ver] || {};
@@ -787,7 +845,9 @@ function processLiveTick(normSym, currentPrice, version = 'official') {
   if (!signalRegistry[ver]) signalRegistry[ver] = {};
   if (!strategyBaselines[ver]) strategyBaselines[ver] = {};
 
-  for (const tf of ['3m', '5m', '10m', '15m']) {
+  const targetTfs = ['3m', '5m', '10m', '15m'];
+
+  for (const tf of targetTfs) {
     const registryKey = `${normSym}:${tf}`;
     if (!signalRegistry[ver][registryKey]) signalRegistry[ver][registryKey] = [];
     const todayList = signalRegistry[ver][registryKey].filter(s => isToday(s.triggerTime || s.openTime));
@@ -854,7 +914,7 @@ function processLiveTick(normSym, currentPrice, version = 'official') {
           pattern: '【5浪冲顶】每秒实时受阻跌破KC上轨'
         };
       }
-    } else {
+    } else if (ver === 'trend') {
       // ===== 顺势版：分析5m/10m/15m/30m/1h多周期大趋势，到达支撑压力逢低多逢高空 =====
       if (base.isMacroBull) {
         // 大趋势多头：到达支撑位逢低做多
@@ -1069,7 +1129,7 @@ async function getOrGenerateSignals(symbol, chartKlines, signalTf = '3m', versio
   let trendMacro = null;
   if (ver === 'trend') {
     trendMacro = await getTrendMacroRegime(normSym);
-  } else {
+  } else if (ver === 'official') {
     macro = await getMacroRegime(normSym);
   }
 
@@ -1179,7 +1239,9 @@ async function getOrGenerateSignals(symbol, chartKlines, signalTf = '3m', versio
   }
 
   // 严格只保留与记录当天真实发出的信号
-  const todaySignals = registryList.filter(s => isToday(s.triggerTime || s.openTime));
+  let todaySignals = registryList.filter(s => isToday(s.triggerTime || s.openTime));
+
+
 
   if (todaySignals.length !== registryList.length) {
     signalRegistry[ver][registryKey] = todaySignals;
@@ -1732,7 +1794,7 @@ app.get('/api/signal/:symbol', async (req, res) => {
   }
 });
 
-// 4. Notifications Aggregator (BTC & ETH across all 4 timeframes, 支持 version: official | trend | ALL | 组合)
+// 4. Notifications Aggregator (BTC & ETH, 支持 version: official | trend | ALL)
 app.get('/api/notifications', (req, res) => {
   try {
     const symbols = ['BTCUSDT', 'ETHUSDT'];
@@ -1858,6 +1920,7 @@ async function syncAllSignals() {
         klines1m = await fetchBinanceKlines(sym, '1m', 1000);
       } catch (e) {}
 
+      // official & trend: 3m, 5m, 10m, 15m
       for (const tf of ['3m', '5m', '10m', '15m']) {
         await getOrGenerateSignals(sym, klines1m, tf, 'official');
         await getOrGenerateSignals(sym, klines1m, tf, 'trend');
