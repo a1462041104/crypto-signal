@@ -1755,6 +1755,51 @@ app.get('/api/notifications', (req, res) => {
   }
 });
 
+// Dedicated Comprehensive Backtest Statistics Endpoint (双版本 · 双币种 全周期实时统计)
+app.get('/api/backtest-stats', (req, res) => {
+  try {
+    const stats = {
+      official: {
+        BTC: computeBacktestStatsForSymbol('BTCUSDT', 'official'),
+        ETH: computeBacktestStatsForSymbol('ETHUSDT', 'official')
+      },
+      trend: {
+        BTC: computeBacktestStatsForSymbol('BTCUSDT', 'trend'),
+        ETH: computeBacktestStatsForSymbol('ETHUSDT', 'trend')
+      },
+      timestamp: Date.now()
+    };
+
+    const calcVerTotal = (verStats) => {
+      const wins = (verStats.BTC.overall.wins || 0) + (verStats.ETH.overall.wins || 0);
+      const losses = (verStats.BTC.overall.losses || 0) + (verStats.ETH.overall.losses || 0);
+      const total = wins + losses;
+      const rate = total > 0 ? ((wins / total) * 100).toFixed(1) : '0.0';
+      return { wins, losses, total, rate };
+    };
+
+    stats.official.total = calcVerTotal(stats.official);
+    stats.trend.total = calcVerTotal(stats.trend);
+
+    const grandWins = stats.official.total.wins + stats.trend.total.wins;
+    const grandLosses = stats.official.total.losses + stats.trend.total.losses;
+    const grandTotal = grandWins + grandLosses;
+    const grandRate = grandTotal > 0 ? ((grandWins / grandTotal) * 100).toFixed(1) : '0.0';
+
+    stats.grandTotal = {
+      wins: grandWins,
+      losses: grandLosses,
+      total: grandTotal,
+      rate: grandRate
+    };
+
+    res.json(stats);
+  } catch (err) {
+    console.error('Error in /api/backtest-stats:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Background sync poller to keep BTC & ETH all 4 timeframes updated and settled (双引擎后台运行，绝不休眠)
 async function syncAllSignals() {
   try {

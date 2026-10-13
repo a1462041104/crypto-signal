@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>不会失联-专用指标 · 币安uiKlines原生高频事件合约预测系统</title>
+  <title>币安uiKlines原生高频事件合约预测系统</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -485,7 +485,7 @@
     /* 3. MAIN LAYOUT CONTAINER */
     .main-container {
       display: grid;
-      grid-template-columns: 1fr minmax(290px, 340px);
+      grid-template-columns: 1fr minmax(580px, 640px);
       flex: 1;
       height: 0;
       min-height: 0;
@@ -498,8 +498,9 @@
       min-width: 0;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 960px) {
       .main-container { grid-template-columns: 1fr; overflow-y: auto; }
+      .sidebar-wrapper { grid-template-columns: 1fr !important; }
     }
 
     .chart-zone {
@@ -864,17 +865,17 @@
     }
     .btn-chart-reset:hover { background: #2563eb; color: #fff; }
 
-    /* 4. RIGHT SIDEBAR */
+    /* 4. RIGHT SIDEBAR (Two Columns: 实时信号 + 信号预警) */
     .sidebar-wrapper {
       background: var(--bg-toolbar);
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 8px;
       padding: 8px;
-      overflow-y: auto;
       height: 100%;
       min-height: 0;
       box-sizing: border-box;
+      overflow: hidden;
     }
 
     .side-card {
@@ -884,7 +885,9 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      flex-shrink: 0;
+      height: 100%;
+      min-height: 0;
+      box-sizing: border-box;
     }
 
     .card-header {
@@ -894,6 +897,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-shrink: 0;
     }
 
     .card-title {
@@ -906,15 +910,8 @@
     }
 
     .btn-card-expand {
-      font-size: 10.5px;
-      color: var(--text-sub);
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 1px 6px;
-      cursor: pointer;
+      display: none;
     }
-    .btn-card-expand:hover { color: var(--text-main); }
 
     /* Card 1: 实时信号 */
     .signals-stat-row {
@@ -926,17 +923,19 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-shrink: 0;
     }
     .stat-highlight { color: var(--green); font-weight: 600; }
 
     .signal-list {
-      max-height: 220px;
+      flex: 1;
+      height: 0;
+      min-height: 0;
       overflow-y: auto;
-      padding: 4px 6px;
+      padding: 6px;
       display: flex;
       flex-direction: column;
       gap: 4px;
-      transition: max-height 0.25s;
     }
 
     .signal-item {
@@ -1097,22 +1096,24 @@
       margin: 0 1px;
     }
     .notif-list {
-      max-height: 220px;
+      flex: 1;
+      height: 0;
+      min-height: 0;
       overflow-y: auto;
-      padding: 4px 6px;
+      padding: 6px;
       display: flex;
       flex-direction: column;
       gap: 4px;
-      transition: max-height 0.25s;
     }
     .notif-item {
       background: var(--bg-input);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 5px 8px;
+      padding: 6px 8px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 6px;
       cursor: pointer;
       transition: all 0.15s;
     }
@@ -1123,8 +1124,11 @@
     }
     .notif-meta-col {
       display: flex;
-      align-items: center;
-      gap: 5px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      min-width: 0;
+      flex: 1;
     }
     .notif-coin-tag {
       font-size: 10px;
@@ -1235,6 +1239,312 @@
     .toast-popup.show {
       transform: translateX(-50%) translateY(0);
       opacity: 1;
+    }
+
+    /* ========================================================= */
+    /* STRATEGY BACKTEST MODAL & NAV BUTTON STYLES */
+    /* ========================================================= */
+    .btn-backtest-nav {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid rgba(168, 85, 247, 0.45);
+      color: #f8fafc;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.15);
+    }
+    .btn-backtest-nav:hover {
+      background: linear-gradient(135deg, #7c3aed, #6d28d9);
+      border-color: #c084fc;
+      color: #fff;
+      box-shadow: 0 0 16px rgba(168, 85, 247, 0.45);
+      transform: translateY(-1px);
+    }
+    .btn-bt-icon { font-size: 13px; }
+    .btn-bt-text { letter-spacing: 0.3px; }
+
+    .bt-modal-mask {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(10, 15, 29, 0.82);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: modalFadeIn 0.2s ease-out;
+    }
+    .bt-modal-box {
+      width: 1100px;
+      max-width: 95vw;
+      height: min(840px, calc(100vh - 40px));
+      max-height: calc(100vh - 40px);
+      background: #0f172a;
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      border-radius: 14px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 25px rgba(168, 85, 247, 0.2);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: modalScaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .bt-modal-header {
+      padding: 13px 20px;
+      background: #1e293b;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .bt-modal-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+    .bt-header-badge {
+      font-size: 11px;
+      color: #c084fc;
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .bt-modal-close {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #94a3b8;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .bt-modal-close:hover {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+    .bt-modal-body {
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
+    }
+    .bt-modal-desc-banner {
+      font-size: 12px;
+      color: #94a3b8;
+      background: rgba(148, 163, 184, 0.08);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 8px;
+      padding: 8px 12px;
+      line-height: 1.5;
+      flex-shrink: 0;
+    }
+    .bt-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .bt-stat-box {
+      background: rgba(30, 41, 59, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .bt-stat-box-primary {
+      border-color: rgba(56, 189, 248, 0.35);
+      background: rgba(56, 189, 248, 0.07);
+    }
+    .bt-stat-box-official {
+      border-color: rgba(59, 130, 246, 0.35);
+      background: rgba(59, 130, 246, 0.07);
+    }
+    .bt-stat-box-trend {
+      border-color: rgba(16, 185, 129, 0.35);
+      background: rgba(16, 185, 129, 0.07);
+    }
+    .bt-stat-label {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+    .bt-stat-val {
+      font-size: 16px;
+      font-weight: 800;
+      color: #f8fafc;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .bt-stat-winrate {
+      color: #38bdf8;
+    }
+    .bt-stat-sub {
+      font-size: 10.5px;
+      color: #94a3b8;
+    }
+
+    /* 4-Card Simultaneous Matrix: 2x2 Grid */
+    .bt-matrix-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 860px) {
+      .bt-matrix-grid { grid-template-columns: 1fr; }
+      .bt-summary-grid { grid-template-columns: 1fr; }
+    }
+    .bt-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.2s;
+    }
+    .bt-card:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+    .bt-card-header {
+      padding: 9px 12px;
+      background: rgba(30, 41, 59, 0.65);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .bt-card-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .bt-ver-pill {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .pill-official {
+      background: rgba(37, 99, 235, 0.18);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.35);
+    }
+    .pill-trend {
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    .bt-card-name {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+    .bt-card-overall-badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+    }
+    .bt-card-rate-lbl { color: #94a3b8; font-size: 10.5px; }
+    .bt-card-rate-val {
+      font-weight: 800;
+      color: #38bdf8;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .bt-card-body {
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .bt-matrix-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      padding: 5px 8px;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: background 0.15s;
+    }
+    .bt-matrix-row:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .bt-matrix-row-overall {
+      background: rgba(255, 255, 255, 0.04);
+      border-top: 1px dashed rgba(255, 255, 255, 0.12);
+      margin-top: 3px;
+      padding-top: 7px;
+    }
+    .bt-tf-label {
+      width: 32px;
+      font-weight: 700;
+      font-size: 11px;
+      color: #94a3b8;
+      font-family: 'JetBrains Mono', monospace;
+      text-align: left;
+      flex-shrink: 0;
+    }
+    .bt-bar-track {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+      min-width: 50px;
+    }
+    .bt-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.35s ease;
+    }
+    .bt-rate-text {
+      width: 48px;
+      text-align: right;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      flex-shrink: 0;
+    }
+    .bt-count-text {
+      width: 130px;
+      text-align: right;
+      color: #94a3b8;
+      font-size: 10.5px;
+      font-family: 'JetBrains Mono', monospace;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .bt-total-muted {
+      color: #64748b;
+      font-size: 10px;
+      margin-left: 2px;
     }
 
     /* ========================================================= */
@@ -2191,7 +2501,7 @@
   <header class="top-nav">
     <div class="nav-left">
       <div class="brand-wrap">
-        <div class="brand-avatar" title="不会失联-专用指标">
+        <div class="brand-avatar" title="事件合约预测">
           <svg viewBox="0 0 36 36" fill="none">
             <circle cx="18" cy="18" r="18" fill="#a855f7"/>
             <circle cx="18" cy="15" r="8" fill="#ffd1dc"/>
@@ -2201,7 +2511,7 @@
             <path d="M16 19 Q18 21 20 19" stroke="#db2777" stroke-width="1.2" stroke-linecap="round"/>
           </svg>
         </div>
-        <span class="brand-title">不会失联-专用指标</span>
+        <span class="brand-title">事件合约预测</span>
       </div>
 
       <button class="theme-toggle-btn" id="theme-toggle-btn" title="切换深色/浅色">🌙</button>
@@ -2246,6 +2556,10 @@
           <div class="palette-grid" id="palette-grid"></div>
         </div>
       </div>
+      <button class="btn-backtest-nav" id="btn-open-bt-modal" title="点击查看策略回测统计">
+        <span class="btn-bt-icon">📈</span>
+        <span class="btn-bt-text">策略统计</span>
+      </button>
       <button class="btn-trade-nav" id="btn-open-trade-modal" title="点击打开模拟下单交易系统">
         <span class="btn-trade-icon">⚡</span>
         <span class="btn-trade-text">模拟下单</span>
@@ -2362,14 +2676,14 @@
             <!-- Subtle Clean Watermark -->
             <div class="chart-watermark">
               <div class="wm-row">
-                <span>不会失联</span>
-                <span>不会失联</span>
-                <span>不会失联</span>
+                <span>宇哥</span>
+                <span>宇哥</span>
+                <span>宇哥</span>
               </div>
               <div class="wm-row">
-                <span>不会失联</span>
-                <span>不会失联</span>
-                <span>不会失联</span>
+                <span>宇哥</span>
+                <span>宇哥</span>
+                <span>宇哥</span>
               </div>
             </div>
 
@@ -2441,64 +2755,122 @@
         <div class="notif-list" id="notif-list-box"></div>
       </div>
 
-      <!-- Card 3: 策略回测统计 -->
-      <div class="side-card">
-        <div class="card-header">
-          <span class="card-title">
-            <span>📈</span> 策略回测统计 <span class="cur-ver-tag" id="cur-ver-tag-bt" style="font-size:10px; padding:1px 6px; border-radius:4px; background:rgba(37,99,235,0.15); color:#60a5fa; margin-left:6px; font-weight:600;">正式版</span>
-          </span>
-          <span style="font-size: 10px; color: var(--text-muted);">真实多周期量化</span>
+    </aside>
+  </main>
+
+  <!-- Strategy Backtest Statistics Modal Dialog (Full Multi-Version & Multi-Coin View) -->
+  <div class="bt-modal-mask" id="bt-modal-mask" style="display: none;">
+    <div class="bt-modal-box">
+      <div class="bt-modal-header">
+        <div class="bt-modal-title-row">
+          <span class="bt-modal-icon">📈</span>
+          <span class="bt-modal-title">策略回测统计看板</span>
+          <span class="bt-header-badge">双版本 · 双币种 实时统计</span>
         </div>
-        <div class="backtest-list">
-          <div class="bt-item">
-            <div class="bt-header">
-              <span>3分钟信号策略 <span style="font-size:10px; color:var(--text-muted);" id="bt-detail-3m">(--单)</span></span>
-              <span class="bt-pct" id="bt-pct-3m">--%</span>
+        <button class="bt-modal-close" id="btn-bt-modal-close" title="关闭">✕</button>
+      </div>
+
+      <div class="bt-modal-body">
+        <!-- Top Summary Row -->
+        <div class="bt-summary-grid">
+          <div class="bt-stat-box bt-stat-box-primary">
+            <div class="bt-stat-label">🌟 全网双版本综合胜率</div>
+            <div class="bt-stat-val bt-stat-winrate" id="bt-grand-rate">--%</div>
+            <div class="bt-stat-sub" id="bt-grand-detail">已结算 -- 单 (-- 吃 / -- 败)</div>
+          </div>
+          <div class="bt-stat-box bt-stat-box-official">
+            <div class="bt-stat-label">🔷 正式版 (波浪量价突破)</div>
+            <div class="bt-stat-val" id="bt-ver-official-rate" style="color: #60a5fa;">--%</div>
+            <div class="bt-stat-sub" id="bt-ver-official-detail">已结算 -- 单 (-- 吃 / -- 败)</div>
+          </div>
+          <div class="bt-stat-box bt-stat-box-trend">
+            <div class="bt-stat-label">🟢 顺势版 (多周期顺势)</div>
+            <div class="bt-stat-val" id="bt-ver-trend-rate" style="color: #34d399;">--%</div>
+            <div class="bt-stat-sub" id="bt-ver-trend-detail">已结算 -- 单 (-- 吃 / -- 败)</div>
+          </div>
+        </div>
+
+        <div class="bt-modal-desc-banner">
+          <span>🎯 基于今日真实行情与实盘信号推演的量化统计，同时展示<strong>正式版</strong>与<strong>顺势版</strong>在 <strong>BTC</strong> 与 <strong>ETH</strong> 上的多周期实盘胜率。</span>
+        </div>
+
+        <!-- 4-Card Simultaneous Matrix: 2x2 Grid -->
+        <div class="bt-matrix-grid">
+          <!-- Card 1: 正式版 · BTC -->
+          <div class="bt-card" id="card-bt-official-btc">
+            <div class="bt-card-header">
+              <div class="bt-card-title-wrap">
+                <span class="bt-ver-pill pill-official">正式版</span>
+                <span class="order-coin-badge order-coin-btc">BTC</span>
+                <span class="bt-card-name">比特币</span>
+              </div>
+              <div class="bt-card-overall-badge">
+                <span class="bt-card-rate-lbl">综合胜率:</span>
+                <span class="bt-card-rate-val" id="bt-rate-official-btc">--%</span>
+              </div>
             </div>
-            <div class="bt-progress-wrap">
-              <div class="bt-progress-bar" id="bt-bar-3m" style="width: 50%;"></div>
+            <div class="bt-card-body" id="bt-rows-official-btc">
+              <div style="text-align:center; padding:20px; font-size:11px; color:var(--text-muted);">正在加载统计数据...</div>
             </div>
           </div>
-          <div class="bt-item">
-            <div class="bt-header">
-              <span>5分钟信号策略 <span style="font-size:10px; color:var(--text-muted);" id="bt-detail-5m">(--单)</span></span>
-              <span class="bt-pct" id="bt-pct-5m">--%</span>
+
+          <!-- Card 2: 正式版 · ETH -->
+          <div class="bt-card" id="card-bt-official-eth">
+            <div class="bt-card-header">
+              <div class="bt-card-title-wrap">
+                <span class="bt-ver-pill pill-official">正式版</span>
+                <span class="order-coin-badge order-coin-eth">ETH</span>
+                <span class="bt-card-name">以太坊</span>
+              </div>
+              <div class="bt-card-overall-badge">
+                <span class="bt-card-rate-lbl">综合胜率:</span>
+                <span class="bt-card-rate-val" id="bt-rate-official-eth">--%</span>
+              </div>
             </div>
-            <div class="bt-progress-wrap">
-              <div class="bt-progress-bar" id="bt-bar-5m" style="width: 50%;"></div>
-            </div>
-          </div>
-          <div class="bt-item">
-            <div class="bt-header">
-              <span>10分钟信号策略 <span style="font-size:10px; color:var(--text-muted);" id="bt-detail-10m">(--单)</span></span>
-              <span class="bt-pct" id="bt-pct-10m">--%</span>
-            </div>
-            <div class="bt-progress-wrap">
-              <div class="bt-progress-bar" id="bt-bar-10m" style="width: 50%;"></div>
-            </div>
-          </div>
-          <div class="bt-item">
-            <div class="bt-header">
-              <span>15分钟信号策略 <span style="font-size:10px; color:var(--text-muted);" id="bt-detail-15m">(--单)</span></span>
-              <span class="bt-pct" id="bt-pct-15m">--%</span>
-            </div>
-            <div class="bt-progress-wrap">
-              <div class="bt-progress-bar" id="bt-bar-15m" style="width: 50%;"></div>
+            <div class="bt-card-body" id="bt-rows-official-eth">
+              <div style="text-align:center; padding:20px; font-size:11px; color:var(--text-muted);">正在加载统计数据...</div>
             </div>
           </div>
-          <div class="bt-item bt-total">
-            <div class="bt-header">
-              <span style="font-weight: 700; color: var(--text-main);">综合多周期胜率 <span style="font-size:10px; color:var(--text-muted);" id="bt-detail-total">(--单)</span></span>
-              <span class="bt-pct" id="bt-pct-total">--%</span>
+
+          <!-- Card 3: 顺势版 · BTC -->
+          <div class="bt-card" id="card-bt-trend-btc">
+            <div class="bt-card-header">
+              <div class="bt-card-title-wrap">
+                <span class="bt-ver-pill pill-trend">顺势版</span>
+                <span class="order-coin-badge order-coin-btc">BTC</span>
+                <span class="bt-card-name">比特币</span>
+              </div>
+              <div class="bt-card-overall-badge">
+                <span class="bt-card-rate-lbl">综合胜率:</span>
+                <span class="bt-card-rate-val" id="bt-rate-trend-btc">--%</span>
+              </div>
             </div>
-            <div class="bt-progress-wrap">
-              <div class="bt-progress-bar" id="bt-bar-total" style="width: 50%;"></div>
+            <div class="bt-card-body" id="bt-rows-trend-btc">
+              <div style="text-align:center; padding:20px; font-size:11px; color:var(--text-muted);">正在加载统计数据...</div>
+            </div>
+          </div>
+
+          <!-- Card 4: 顺势版 · ETH -->
+          <div class="bt-card" id="card-bt-trend-eth">
+            <div class="bt-card-header">
+              <div class="bt-card-title-wrap">
+                <span class="bt-ver-pill pill-trend">顺势版</span>
+                <span class="order-coin-badge order-coin-eth">ETH</span>
+                <span class="bt-card-name">以太坊</span>
+              </div>
+              <div class="bt-card-overall-badge">
+                <span class="bt-card-rate-lbl">综合胜率:</span>
+                <span class="bt-card-rate-val" id="bt-rate-trend-eth">--%</span>
+              </div>
+            </div>
+            <div class="bt-card-body" id="bt-rows-trend-eth">
+              <div style="text-align:center; padding:20px; font-size:11px; color:var(--text-muted);">正在加载统计数据...</div>
             </div>
           </div>
         </div>
       </div>
-    </aside>
-  </main>
+    </div>
+  </div>
 
   <!-- Indicator Parameter Settings Modal Dialog -->
   <div class="ind-modal-mask" id="ind-modal-mask" style="display: none;">
@@ -5052,6 +5424,15 @@
           setBtRow('10m', 'bt-pct-10m', 'bt-bar-10m', 'bt-detail-10m');
           setBtRow('15m', 'bt-pct-15m', 'bt-bar-15m', 'bt-detail-15m');
           setBtRow('overall', 'bt-pct-total', 'bt-bar-total', 'bt-detail-total');
+
+          if (bt.overall) {
+            const elRate = document.getElementById('bt-summary-rate');
+            const elSettled = document.getElementById('bt-summary-settled');
+            const elRecord = document.getElementById('bt-summary-record');
+            if (elRate) elRate.textContent = `${bt.overall.rate}%`;
+            if (elSettled) elSettled.textContent = `${(bt.overall.wins || 0) + (bt.overall.losses || 0)} 单`;
+            if (elRecord) elRecord.textContent = `${bt.overall.wins || 0} 吃 / ${bt.overall.losses || 0} 败`;
+          }
         }
 
         if (data.recentSignals !== undefined) {
@@ -5559,17 +5940,15 @@
       }
     });
 
-    document.getElementById('btn-toggle-signals').addEventListener('click', () => {
-      const box = document.getElementById('signal-list-box');
-      const btn = document.getElementById('btn-toggle-signals');
-      if (box.style.maxHeight === '480px') {
-        box.style.maxHeight = '220px';
-        btn.textContent = '展开';
-      } else {
-        box.style.maxHeight = '480px';
-        btn.textContent = '收起';
-      }
-    });
+    const btnToggleSig = document.getElementById('btn-toggle-signals');
+    if (btnToggleSig) {
+      btnToggleSig.addEventListener('click', () => {
+        const box = document.getElementById('signal-list-box');
+        if (box) {
+          box.style.display = (box.style.display === 'none') ? 'flex' : 'none';
+        }
+      });
+    }
 
     // Notification Card Controls
     document.querySelectorAll('#card-signal-notifications .notif-filter-btn').forEach(btn => {
@@ -5591,17 +5970,197 @@
       });
     });
 
-    document.getElementById('btn-toggle-notifs').addEventListener('click', () => {
-      const box = document.getElementById('notif-list-box');
-      const btn = document.getElementById('btn-toggle-notifs');
-      if (box.style.maxHeight === '480px') {
-        box.style.maxHeight = '220px';
-        btn.textContent = '展开';
-      } else {
-        box.style.maxHeight = '480px';
-        btn.textContent = '收起';
+    const btnToggleNotif = document.getElementById('btn-toggle-notifs');
+    if (btnToggleNotif) {
+      btnToggleNotif.addEventListener('click', () => {
+        const box = document.getElementById('notif-list-box');
+        if (box) {
+          box.style.display = (box.style.display === 'none') ? 'flex' : 'none';
+        }
+      });
+    }
+
+    // =========================================================
+    // Strategy Backtest Multi-Matrix Rendering Engine (双版本 · 双币种 4卡片全景统计)
+    // =========================================================
+    function renderBtCardRows(containerId, coinStats, isTrend) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      if (!coinStats) {
+        container.innerHTML = '<div style="text-align:center; padding:15px; font-size:11px; color:#94a3b8;">暂无数据</div>';
+        return;
       }
-    });
+
+      const tfs = [
+        { key: '3m', label: '3m' },
+        { key: '5m', label: '5m' },
+        { key: '10m', label: '10m' },
+        { key: '15m', label: '15m' },
+        { key: 'overall', label: '综合', isTotal: true }
+      ];
+
+      const barBg = isTrend ? 'linear-gradient(90deg, #059669, #34d399)' : 'linear-gradient(90deg, #2563eb, #60a5fa)';
+
+      let html = '';
+      for (const tf of tfs) {
+        const item = coinStats[tf.key] || { rate: '0.0', wins: 0, losses: 0, total: 0 };
+        const numRate = parseFloat(item.rate) || 0;
+        const barWidth = Math.min(100, Math.max(item.total > 0 ? 5 : 0, numRate));
+        const rateColor = numRate >= 60 ? '#34d399' : (numRate >= 50 ? '#38bdf8' : (item.total === 0 ? '#94a3b8' : '#fbbf24'));
+        const isOverall = tf.isTotal;
+
+        html += `
+          <div class="bt-matrix-row ${isOverall ? 'bt-matrix-row-overall' : ''}">
+            <div class="bt-tf-label" style="${isOverall ? 'font-weight:800; color:#f8fafc;' : ''}">${tf.label}</div>
+            <div class="bt-bar-track">
+              <div class="bt-bar-fill" style="width: ${barWidth}%; background: ${barBg};"></div>
+            </div>
+            <div class="bt-rate-text" style="color: ${rateColor};">${item.rate}%</div>
+            <div class="bt-count-text">
+              <span style="color:#22c55e; font-weight:600;">${item.wins}吃</span> / <span style="color:#ef4444; font-weight:600;">${item.losses}败</span>
+              <span class="bt-total-muted">(${item.total}单)</span>
+            </div>
+          </div>
+        `;
+      }
+      container.innerHTML = html;
+    }
+
+    function renderBacktestStats(stats) {
+      if (!stats) return;
+
+      // 1. Top Grand Total
+      if (stats.grandTotal) {
+        const grandRateEl = document.getElementById('bt-grand-rate');
+        const grandDetEl = document.getElementById('bt-grand-detail');
+        if (grandRateEl) {
+          grandRateEl.textContent = `${stats.grandTotal.rate}%`;
+          const r = parseFloat(stats.grandTotal.rate) || 0;
+          grandRateEl.style.color = r >= 60 ? '#34d399' : (r >= 50 ? '#38bdf8' : '#fbbf24');
+        }
+        if (grandDetEl) {
+          grandDetEl.innerHTML = `已结算 <strong style="color:#f8fafc;">${stats.grandTotal.total}</strong> 单 (<span style="color:#22c55e;">${stats.grandTotal.wins}吃</span> / <span style="color:#ef4444;">${stats.grandTotal.losses}败</span>)`;
+        }
+      }
+
+      // 2. Official Version Summary
+      if (stats.official && stats.official.total) {
+        const offRateEl = document.getElementById('bt-ver-official-rate');
+        const offDetEl = document.getElementById('bt-ver-official-detail');
+        if (offRateEl) {
+          offRateEl.textContent = `${stats.official.total.rate}%`;
+          const r = parseFloat(stats.official.total.rate) || 0;
+          offRateEl.style.color = r >= 60 ? '#34d399' : (r >= 50 ? '#60a5fa' : '#fbbf24');
+        }
+        if (offDetEl) {
+          offDetEl.innerHTML = `已结算 <strong style="color:#f8fafc;">${stats.official.total.total}</strong> 单 (<span style="color:#22c55e;">${stats.official.total.wins}吃</span> / <span style="color:#ef4444;">${stats.official.total.losses}败</span>)`;
+        }
+      }
+
+      // 3. Trend Version Summary
+      if (stats.trend && stats.trend.total) {
+        const trRateEl = document.getElementById('bt-ver-trend-rate');
+        const trDetEl = document.getElementById('bt-ver-trend-detail');
+        if (trRateEl) {
+          trRateEl.textContent = `${stats.trend.total.rate}%`;
+          const r = parseFloat(stats.trend.total.rate) || 0;
+          trRateEl.style.color = r >= 60 ? '#34d399' : (r >= 50 ? '#34d399' : '#fbbf24');
+        }
+        if (trDetEl) {
+          trDetEl.innerHTML = `已结算 <strong style="color:#f8fafc;">${stats.trend.total.total}</strong> 单 (<span style="color:#22c55e;">${stats.trend.total.wins}吃</span> / <span style="color:#ef4444;">${stats.trend.total.losses}败</span>)`;
+        }
+      }
+
+      // Helper for card overall badge
+      const setCardOverallBadge = (badgeId, rateStr) => {
+        const el = document.getElementById(badgeId);
+        if (!el) return;
+        el.textContent = `${rateStr || '0.0'}%`;
+        const r = parseFloat(rateStr) || 0;
+        el.style.color = r >= 60 ? '#34d399' : (r >= 50 ? '#38bdf8' : '#fbbf24');
+      };
+
+      // 4. Render 4 Matrix Cards simultaneously
+      if (stats.official && stats.official.BTC) {
+        setCardOverallBadge('bt-rate-official-btc', stats.official.BTC.overall?.rate);
+        renderBtCardRows('bt-rows-official-btc', stats.official.BTC, false);
+      }
+      if (stats.official && stats.official.ETH) {
+        setCardOverallBadge('bt-rate-official-eth', stats.official.ETH.overall?.rate);
+        renderBtCardRows('bt-rows-official-eth', stats.official.ETH, false);
+      }
+      if (stats.trend && stats.trend.BTC) {
+        setCardOverallBadge('bt-rate-trend-btc', stats.trend.BTC.overall?.rate);
+        renderBtCardRows('bt-rows-trend-btc', stats.trend.BTC, true);
+      }
+      if (stats.trend && stats.trend.ETH) {
+        setCardOverallBadge('bt-rate-trend-eth', stats.trend.ETH.overall?.rate);
+        renderBtCardRows('bt-rows-trend-eth', stats.trend.ETH, true);
+      }
+    }
+
+    let btPollTimer = null;
+    async function fetchBacktestStats() {
+      try {
+        const res = await fetch('/api/backtest-stats');
+        if (!res.ok) return;
+        const stats = await res.json();
+        renderBacktestStats(stats);
+      } catch (err) {
+        console.error('fetchBacktestStats error:', err);
+      }
+    }
+
+    function startBtPolling() {
+      fetchBacktestStats();
+      if (!btPollTimer) {
+        btPollTimer = setInterval(() => {
+          const mask = document.getElementById('bt-modal-mask');
+          if (mask && mask.style.display === 'flex') {
+            fetchBacktestStats();
+          } else {
+            clearInterval(btPollTimer);
+            btPollTimer = null;
+          }
+        }, 2000);
+      }
+    }
+
+    function stopBtPolling() {
+      if (btPollTimer) {
+        clearInterval(btPollTimer);
+        btPollTimer = null;
+      }
+    }
+
+    // Strategy Backtest Modal Bindings
+    const btnOpenBt = document.getElementById('btn-open-bt-modal');
+    const btModalMask = document.getElementById('bt-modal-mask');
+    const btnCloseBt = document.getElementById('btn-bt-modal-close');
+
+    if (btnOpenBt && btModalMask) {
+      btnOpenBt.addEventListener('click', () => {
+        btModalMask.style.display = 'flex';
+        playBeep('win');
+        startBtPolling();
+      });
+    }
+
+    if (btnCloseBt && btModalMask) {
+      btnCloseBt.addEventListener('click', () => {
+        btModalMask.style.display = 'none';
+        stopBtPolling();
+      });
+    }
+
+    if (btModalMask) {
+      btModalMask.addEventListener('click', (e) => {
+        if (e.target.id === 'bt-modal-mask') {
+          btModalMask.style.display = 'none';
+          stopBtPolling();
+        }
+      });
+    }
 
     // =========================================================
     // SIMULATED TRADING ENGINE (100% REAL BINANCE SETTLEMENT)
@@ -6262,8 +6821,13 @@
         }
 
         document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && modalMask && modalMask.style.display === 'flex') {
-            modalMask.style.display = 'none';
+          if (e.key === 'Escape') {
+            if (modalMask && modalMask.style.display === 'flex') modalMask.style.display = 'none';
+            const btMask = document.getElementById('bt-modal-mask');
+            if (btMask && btMask.style.display === 'flex') {
+              btMask.style.display = 'none';
+              if (typeof stopBtPolling === 'function') stopBtPolling();
+            }
           }
         });
 
