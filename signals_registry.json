@@ -493,10 +493,70 @@
         "price": 2458.24,
         "time": "07:27:41",
         "dateStr": "07:27:41",
+        "status": "败",
+        "signalTf": "3m",
+        "version": "official",
+        "settleTime": 1791847841549,
+        "settlePrice": 2461.66
+      },
+      {
+        "openTime": 1791847980000,
+        "triggerTime": 1791848006569,
+        "type": "做空",
+        "typeKey": "SELL",
+        "wavePattern": "【3浪主跌】每秒实时跌破前低+BBI放量破位",
+        "price": 2457.6,
+        "time": "07:33:26",
+        "dateStr": "07:33:26",
+        "status": "吃",
+        "signalTf": "3m",
+        "version": "official",
+        "settleTime": 1791848186569,
+        "settlePrice": 2453.86
+      },
+      {
+        "openTime": 1791848340000,
+        "triggerTime": 1791848348997,
+        "type": "做空",
+        "typeKey": "SELL",
+        "wavePattern": "【3浪主跌】每秒实时跌破前低+BBI放量破位",
+        "price": 2449,
+        "time": "07:39:08",
+        "dateStr": "07:39:08",
+        "status": "败",
+        "signalTf": "3m",
+        "version": "official",
+        "settleTime": 1791848528997,
+        "settlePrice": 2449.3
+      },
+      {
+        "openTime": 1791848700000,
+        "triggerTime": 1791848721886,
+        "type": "做空",
+        "typeKey": "SELL",
+        "wavePattern": "【3浪主跌】每秒实时跌破前低+BBI放量破位",
+        "price": 2448.43,
+        "time": "07:45:21",
+        "dateStr": "07:45:21",
+        "status": "败",
+        "signalTf": "3m",
+        "version": "official",
+        "settleTime": 1791848901886,
+        "settlePrice": 2451.57
+      },
+      {
+        "openTime": 1791848880000,
+        "triggerTime": 1791848917383,
+        "type": "做空",
+        "typeKey": "SELL",
+        "wavePattern": "【3浪主跌】每秒实时跌破前低+BBI放量破位",
+        "price": 2447.22,
+        "time": "07:48:37",
+        "dateStr": "07:48:37",
         "status": "等",
         "signalTf": "3m",
         "version": "official",
-        "settleTime": 1791847841549
+        "settleTime": 1791849097383
       }
     ],
     "ETHUSDT:5m": [
@@ -851,6 +911,50 @@
         "version": "official",
         "settleTime": 1791847811533,
         "settlePrice": 2460.2
+      },
+      {
+        "openTime": 1791847980000,
+        "triggerTime": 1791848007576,
+        "type": "做空",
+        "typeKey": "SELL",
+        "wavePattern": "【3浪主跌】每秒实时跌破前低+BBI放量破位",
+        "price": 2456.08,
+        "time": "07:33:27",
+        "dateStr": "07:33:27",
+        "status": "吃",
+        "signalTf": "5m",
+        "version": "official",
+        "settleTime": 1791848307576,
+        "settlePrice": 2451.16
+      },
+      {
+        "openTime": 1791848400000,
+        "triggerTime": 1791848407040,
+        "type": "做空",
+        "typeKey": "SELL",
+        "wavePattern": "【3浪主跌】每秒实时跌破前低+BBI放量破位",
+        "price": 2447.53,
+        "time": "07:40:07",
+        "dateStr": "07:40:07",
+        "status": "败",
+        "signalTf": "5m",
+        "version": "official",
+        "settleTime": 1791848707040,
+        "settlePrice": 2449.35
+      },
+      {
+        "openTime": 1791849000000,
+        "triggerTime": 1791849025844,
+        "type": "做空",
+        "typeKey": "SELL",
+        "wavePattern": "【3浪主跌】每秒实时跌破前低+BBI放量破位",
+        "price": 2446.7,
+        "time": "07:50:25",
+        "dateStr": "07:50:25",
+        "status": "等",
+        "signalTf": "5m",
+        "version": "official",
+        "settleTime": 1791849325844
       }
     ],
     "ETHUSDT:10m": [
@@ -1044,6 +1148,21 @@
         "version": "official",
         "settleTime": 1791846939392,
         "settlePrice": 2462.11
+      },
+      {
+        "openTime": 1791847980000,
+        "triggerTime": 1791848007576,
+        "type": "做空",
+        "typeKey": "SELL",
+        "wavePattern": "【3浪主跌】每秒实时跌破前低+BBI放量破位",
+        "price": 2456.08,
+        "time": "07:33:27",
+        "dateStr": "07:33:27",
+        "status": "吃",
+        "signalTf": "10m",
+        "version": "official",
+        "settleTime": 1791848607576,
+        "settlePrice": 2449.62
       }
     ],
     "BTCUSDT:3m": [
@@ -1382,10 +1501,70 @@
         "price": 82000,
         "time": "07:27:48",
         "dateStr": "07:27:48",
+        "status": "败",
+        "signalTf": "3m",
+        "version": "official",
+        "settleTime": 1791847848535,
+        "settlePrice": 82048.61
+      },
+      {
+        "openTime": 1791847920000,
+        "triggerTime": 1791847927070,
+        "type": "做空",
+        "typeKey": "SELL",
+        "wavePattern": "【3浪主跌】每秒实时跌破前低+BBI放量破位",
+        "price": 81991.88,
+        "time": "07:32:07",
+        "dateStr": "07:32:07",
+        "status": "吃",
+        "signalTf": "3m",
+        "version": "official",
+        "settleTime": 1791848107070,
+        "settlePrice": 81925.68
+      },
+      {
+        "openTime": 1791848100000,
+        "triggerTime": 1791848107228,
+        "type": "做空",
+        "typeKey": "SELL",
+        "wavePattern": "【3浪主跌】每秒实时跌破前低+BBI放量破位",
+        "price": 81925.68,
+        "time": "07:35:07",
+        "dateStr": "07:35:07",
+        "status": "吃",
+        "signalTf": "3m",
+        "version": "official",
+        "settleTime": 1791848287228,
+        "settlePrice": 81911.89
+      },
+      {
+        "openTime": 1791848340000,
+        "triggerTime": 1791848348045,
+        "type": "做空",
+        "typeKey": "SELL",
+        "wavePattern": "【3浪主跌】每秒实时跌破前低+BBI放量破位",
+        "price": 81823.73,
+        "time": "07:39:08",
+        "dateStr": "07:39:08",
+        "status": "败",
+        "signalTf": "3m",
+        "version": "official",
+        "settleTime": 1791848528045,
+        "settlePrice": 81834.41
+      },
+      {
+        "openTime": 1791848880000,
+        "triggerTime": 1791848921118,
+        "type": "做空",
+        "typeKey": "SELL",
+        "wavePattern": "【3浪主跌】每秒实时跌破前低+BBI放量破位",
+        "price": 81815.85,
+        "time": "07:48:41",
+        "dateStr": "07:48:41",
         "status": "等",
         "signalTf": "3m",
         "version": "official",
-        "settleTime": 1791847848535
+        "settleTime": 1791849101118
       }
     ],
     "ETHUSDT:15m": [
@@ -1478,6 +1657,21 @@
         "version": "official",
         "settleTime": 1791847401051,
         "settlePrice": 2463.78
+      },
+      {
+        "openTime": 1791847980000,
+        "triggerTime": 1791848007576,
+        "type": "做空",
+        "typeKey": "SELL",
+        "wavePattern": "【3浪主跌】每秒实时跌破前低+BBI放量破位",
+        "price": 2456.08,
+        "time": "07:33:27",
+        "dateStr": "07:33:27",
+        "status": "吃",
+        "signalTf": "15m",
+        "version": "official",
+        "settleTime": 1791848907576,
+        "settlePrice": 2451.56
       }
     ],
     "BTCUSDT:5m": [
@@ -1741,10 +1935,26 @@
         "price": 82047.26,
         "time": "07:30:11",
         "dateStr": "07:30:11",
-        "status": "等",
+        "status": "吃",
         "signalTf": "5m",
         "version": "official",
-        "settleTime": 1791848111669
+        "settleTime": 1791848111669,
+        "settlePrice": 81871.04
+      },
+      {
+        "openTime": 1791848340000,
+        "triggerTime": 1791848351744,
+        "type": "做空",
+        "typeKey": "SELL",
+        "wavePattern": "【3浪主跌】每秒实时跌破前低+BBI放量破位",
+        "price": 81810.06,
+        "time": "07:39:11",
+        "dateStr": "07:39:11",
+        "status": "吃",
+        "signalTf": "5m",
+        "version": "official",
+        "settleTime": 1791848651744,
+        "settlePrice": 81809.66
       }
     ],
     "BTCUSDT:10m": [
@@ -1880,6 +2090,21 @@
         "version": "official",
         "settleTime": 1791846795555,
         "settlePrice": 81996.19
+      },
+      {
+        "openTime": 1791847920000,
+        "triggerTime": 1791847927070,
+        "type": "做空",
+        "typeKey": "SELL",
+        "wavePattern": "【3浪主跌】每秒实时跌破前低+BBI放量破位",
+        "price": 81991.88,
+        "time": "07:32:07",
+        "dateStr": "07:32:07",
+        "status": "吃",
+        "signalTf": "10m",
+        "version": "official",
+        "settleTime": 1791848527070,
+        "settlePrice": 81827.54
       }
     ],
     "BTCUSDT:15m": [
@@ -2014,6 +2239,21 @@
         "version": "official",
         "settleTime": 1791847543334,
         "settlePrice": 82075.18
+      },
+      {
+        "openTime": 1791847920000,
+        "triggerTime": 1791847927070,
+        "type": "做空",
+        "typeKey": "SELL",
+        "wavePattern": "【3浪主跌】每秒实时跌破前低+BBI放量破位",
+        "price": 81991.88,
+        "time": "07:32:07",
+        "dateStr": "07:32:07",
+        "status": "吃",
+        "signalTf": "15m",
+        "version": "official",
+        "settleTime": 1791848827070,
+        "settlePrice": 81853.72
       }
     ]
   },
@@ -2808,10 +3048,26 @@
         "price": 82050.82,
         "time": "07:30:08",
         "dateStr": "07:30:08",
-        "status": "等",
+        "status": "吃",
         "signalTf": "3m",
         "version": "trend",
-        "settleTime": 1791847988365
+        "settleTime": 1791847988365,
+        "settlePrice": 81983.35
+      },
+      {
+        "openTime": 1791847980000,
+        "triggerTime": 1791847988444,
+        "type": "做空",
+        "typeKey": "SELL",
+        "wavePattern": "【顺势逢高做空】空头反抽BBI阻力遇阻回落",
+        "price": 81983.35,
+        "time": "07:33:08",
+        "dateStr": "07:33:08",
+        "status": "吃",
+        "signalTf": "3m",
+        "version": "trend",
+        "settleTime": 1791848168444,
+        "settlePrice": 81929.61
       }
     ],
     "BTCUSDT:5m": [
