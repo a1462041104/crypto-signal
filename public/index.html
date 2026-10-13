@@ -3409,15 +3409,43 @@
       }
     }
 
-    // Digital Clock
+    // Strict Beijing Time (UTC+8) Formatter - immune to user/browser OS timezone
+    function formatBeijingTime(timestamp, mode = 'time') {
+      if (!timestamp) return '--:--:--';
+      const ms = timestamp < 1e11 ? timestamp * 1000 : Number(timestamp);
+      if (isNaN(ms)) return '--:--:--';
+      const bj = new Date(ms + 8 * 3600 * 1000);
+      const ho = String(bj.getUTCHours()).padStart(2, '0');
+      const mi = String(bj.getUTCMinutes()).padStart(2, '0');
+      const se = String(bj.getUTCSeconds()).padStart(2, '0');
+      if (mode === 'hm') {
+        return `${ho}:${mi}`;
+      }
+      if (mode === 'full') {
+        const yr = bj.getUTCFullYear();
+        const mo = String(bj.getUTCMonth() + 1).padStart(2, '0');
+        const da = String(bj.getUTCDate()).padStart(2, '0');
+        return `${yr}-${mo}-${da} ${ho}:${mi}:${se}`;
+      }
+      if (mode === 'full_hm') {
+        const yr = bj.getUTCFullYear();
+        const mo = String(bj.getUTCMonth() + 1).padStart(2, '0');
+        const da = String(bj.getUTCDate()).padStart(2, '0');
+        return `${yr}-${mo}-${da} ${ho}:${mi}`;
+      }
+      return `${ho}:${mi}:${se}`;
+    }
+
+    // Digital Clock (Strict Beijing Time UTC+8)
     function updateNeonClock() {
-      const now = new Date();
-      const yr = now.getFullYear();
-      const mo = String(now.getMonth() + 1).padStart(2, '0');
-      const da = String(now.getDate()).padStart(2, '0');
-      const ho = String(now.getHours()).padStart(2, '0');
-      const mi = String(now.getMinutes()).padStart(2, '0');
-      const se = String(now.getSeconds()).padStart(2, '0');
+      const now = Date.now();
+      const bj = new Date(now + 8 * 3600 * 1000);
+      const yr = bj.getUTCFullYear();
+      const mo = String(bj.getUTCMonth() + 1).padStart(2, '0');
+      const da = String(bj.getUTCDate()).padStart(2, '0');
+      const ho = String(bj.getUTCHours()).padStart(2, '0');
+      const mi = String(bj.getUTCMinutes()).padStart(2, '0');
+      const se = String(bj.getUTCSeconds()).padStart(2, '0');
 
       document.getElementById('clock-date').textContent = `${yr}-${mo}-${da}`;
       document.getElementById('clock-time').textContent = `${ho}:${mi}:${se}`;
@@ -4994,8 +5022,7 @@
             ctx.lineTo(x, timeTop + 4);
             ctx.stroke();
 
-            const d = new Date(k.openTime);
-            const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+            const timeStr = formatBeijingTime(k.openTime, 'hm');
             ctx.fillStyle = textMuted;
             ctx.font = '10px JetBrains Mono, monospace';
             ctx.textAlign = 'center';
@@ -5236,8 +5263,7 @@
 
           // 5. Snapped Time Badge at Bottom Axis
           if (closest) {
-            const d = new Date(closest.k.openTime);
-            const timeStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+            const timeStr = formatBeijingTime(closest.k.openTime, 'full_hm');
             const timeTextWidth = ctx.measureText(timeStr).width + 12;
 
             ctx.fillStyle = '#2563eb';
@@ -5320,8 +5346,7 @@
     // Live Candlestick Header Update
     function updateCandleInfo(c) {
       if (!c) return;
-      const date = new Date(c.openTime);
-      const timeStr = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+      const timeStr = formatBeijingTime(c.openTime, 'full_hm');
       
       const diff = c.close - c.open;
       const pct = ((diff / c.open) * 100).toFixed(2);
@@ -5715,7 +5740,7 @@
         if (s.status === '吃') statusCls = 'status-win';
         if (s.status === '败') statusCls = 'status-loss';
 
-        const cleanTime = (s.time || '').replace(/^今天\s*/, '');
+        const cleanTime = formatBeijingTime(s.triggerTime || s.openTime) || (s.time || '').replace(/^今天\s*/, '');
 
         let settleText = '--';
         let settleColorCls = 'color-wait';
@@ -6169,9 +6194,20 @@
       SETTINGS_KEY: 'crypto_sim_trade_settings',
       ORDERS_KEY: 'crypto_sim_trade_orders',
 
+      // 最大允许下单延迟窗口：信号发出后超过 20 秒，视为“已过最佳下单时间”，坚决不跟单！
+      MAX_ENTRY_DELAY_MS: 20000,
+
+      // 记录已知的被忽略信号ID（例如开关开启瞬间已经存在的未完成信号）
+      ignoredSignalIds: new Set(),
+      lastSeenNotifications: [],
+      sessionStartedAt: Date.now(),
+
       settings: {
         autoFollow: false,
-        enabledAt: null, // Exact timestamp when autoFollow was enabled
+        enabledAt: null, // 总开关开启的时间戳
+        versionEnabledAt: {}, // 每个版本的开启时间戳 { official: ts, trend: ts }
+        coinEnabledAt: {}, // 每个币种的开启时间戳 { BTC: ts, ETH: ts }
+        timeframeEnabledAt: {}, // 每个周期的开启时间戳 { '3m': ts, '5m': ts, ... }
         amount: 10,
         followVersions: ['official', 'trend'],
         followCoins: ['BTC', 'ETH'],
@@ -6181,14 +6217,19 @@
       orders: [],
 
       init() {
+        this.sessionStartedAt = Date.now();
         this.loadState();
         this.bindEvents();
         this.renderSettingsUI();
         this.renderOrdersUI();
         this.updateStatsUI();
 
+        // 页面初始化时立即拉取一次信号，并将当前所有未结单（等）全部快照拉黑，防止页面加载时追旧单
+        this.pollAllNotifications().then(() => {
+          this.snapshotPendingSignals();
+        });
+
         // 1. Independent multi-version signal poller (fetches version=ALL every 1.5s)
-        this.pollAllNotifications();
         setInterval(() => {
           this.pollAllNotifications();
         }, 1500);
@@ -6199,11 +6240,36 @@
         }, 1500);
       },
 
+      // 快照屏蔽：将当前已存在的未结单（等）全部加入黑名单，在任何开关开启时坚决不补单！
+      snapshotPendingSignals(notifications) {
+        const list = notifications || this.lastSeenNotifications || [];
+        if (list.length > 0) {
+          list.forEach(s => {
+            if (s && s.id && s.status === '等') {
+              this.ignoredSignalIds.add(s.id);
+            }
+          });
+        } else {
+          // 若当前内存暂无信号列表，立即异步拉取一次全量信号并拉黑现有进行中的单子
+          fetch('/api/notifications?version=ALL').then(r => r.json()).then(d => {
+            if (d && Array.isArray(d.notifications)) {
+              this.lastSeenNotifications = d.notifications;
+              d.notifications.forEach(s => {
+                if (s && s.id && s.status === '等') {
+                  this.ignoredSignalIds.add(s.id);
+                }
+              });
+            }
+          }).catch(() => {});
+        }
+      },
+
       async pollAllNotifications() {
         try {
           const res = await fetch('/api/notifications?version=ALL');
           const data = await res.json();
           if (data && Array.isArray(data.notifications)) {
+            this.lastSeenNotifications = data.notifications;
             this.onNotificationsUpdate(data.notifications);
           }
         } catch (e) {}
@@ -6215,7 +6281,10 @@
           if (savedSettings) {
             const parsed = JSON.parse(savedSettings);
             this.settings.autoFollow = !!parsed.autoFollow;
-            this.settings.enabledAt = parsed.enabledAt ? Number(parsed.enabledAt) : (this.settings.autoFollow ? Date.now() : null);
+            this.settings.enabledAt = parsed.enabledAt ? Number(parsed.enabledAt) : null;
+            this.settings.versionEnabledAt = parsed.versionEnabledAt || {};
+            this.settings.coinEnabledAt = parsed.coinEnabledAt || {};
+            this.settings.timeframeEnabledAt = parsed.timeframeEnabledAt || {};
             this.settings.amount = Math.max(5, Number(parsed.amount) || 10);
             if (Array.isArray(parsed.followVersions)) {
               this.settings.followVersions = parsed.followVersions;
@@ -6273,9 +6342,17 @@
         if (this.settings.autoFollow) {
           // 开启/重新开启：记录最新开启时间戳
           this.settings.enabledAt = now;
+          this.settings.versionEnabledAt = {};
+          (this.settings.followVersions || []).forEach(v => { this.settings.versionEnabledAt[v] = now; });
+          this.settings.coinEnabledAt = {};
+          (this.settings.followCoins || []).forEach(c => { this.settings.coinEnabledAt[c] = now; });
+          this.settings.timeframeEnabledAt = {};
+          (this.settings.followTimeframes || []).forEach(tf => { this.settings.timeframeEnabledAt[tf] = now; });
 
-          // 核心逻辑：关闭再开启时，有信号发出时间在开启前的还未完结订单，开启后到时间结算的不要统计进来！
-          // 过滤清除所有在开启时间之前发出的、当前仍未完结（PENDING）的旧订单
+          // 【核心拦截 1】：把当前已经存在的未结单（等）全部拉黑，开启瞬间绝不追单！
+          this.snapshotPendingSignals();
+
+          // 【核心拦截 2】：清除所有在开启时间之前发出的、当前仍未完结（PENDING）的旧订单
           this.orders = this.orders.filter(order => {
             if (order.status === 'PENDING') {
               const sigTime = order.sigTriggerTime || order.openTime || order.createTime;
@@ -6295,9 +6372,14 @@
       },
 
       setFollowVersion(ver, checked) {
+        const now = Date.now();
         const cur = new Set(this.settings.followVersions || []);
         if (checked) {
           cur.add(ver);
+          this.settings.versionEnabledAt = this.settings.versionEnabledAt || {};
+          this.settings.versionEnabledAt[ver] = now;
+          // 开启该版本瞬间，把当前已存在的未结单拉黑，绝不回溯跟单！
+          this.snapshotPendingSignals();
         } else {
           cur.delete(ver);
         }
@@ -6307,9 +6389,14 @@
       },
 
       setFollowCoin(coin, checked) {
+        const now = Date.now();
         const cur = new Set(this.settings.followCoins || []);
         if (checked) {
           cur.add(coin);
+          this.settings.coinEnabledAt = this.settings.coinEnabledAt || {};
+          this.settings.coinEnabledAt[coin] = now;
+          // 开启该币种瞬间，把当前已存在的未结单拉黑，绝不回溯跟单！
+          this.snapshotPendingSignals();
         } else {
           cur.delete(coin);
         }
@@ -6319,9 +6406,14 @@
       },
 
       setFollowTimeframe(tf, checked) {
+        const now = Date.now();
         const cur = new Set(this.settings.followTimeframes || []);
         if (checked) {
           cur.add(tf);
+          this.settings.timeframeEnabledAt = this.settings.timeframeEnabledAt || {};
+          this.settings.timeframeEnabledAt[tf] = now;
+          // 开启该周期瞬间，把当前已存在的未结单拉黑，绝不回溯跟单！
+          this.snapshotPendingSignals();
         } else {
           cur.delete(tf);
         }
@@ -6332,41 +6424,75 @@
 
       onNotificationsUpdate(notifications) {
         if (!Array.isArray(notifications) || !notifications.length) return;
+        this.lastSeenNotifications = notifications;
 
+        const now = Date.now();
         let changed = false;
 
         // 1. Auto follow newly generated pending signals based on selected followVersions, followCoins AND followTimeframes
-        // 严格要求：只有在模拟下单开启（enabledAt存在）且信号发出时间 >= enabledAt 时才建仓！
         if (this.settings.autoFollow && this.settings.enabledAt &&
             this.settings.followVersions && this.settings.followVersions.length > 0 &&
             this.settings.followCoins && this.settings.followCoins.length > 0 &&
             this.settings.followTimeframes && this.settings.followTimeframes.length > 0) {
+
           notifications.forEach(s => {
             const sVer = s.version || 'official';
             const sCoin = (s.coin || (s.symbol && s.symbol.replace('USDT', '')) || 'BTC').toUpperCase();
             const sTf = s.timeframe || '3m';
 
-            if (!this.settings.followVersions.includes(sVer)) {
-              return; // User has not selected to follow this version
-            }
-            if (!this.settings.followCoins.includes(sCoin)) {
-              return; // User has not selected to follow this coin
-            }
-            if (!this.settings.followTimeframes.includes(sTf)) {
-              return; // User has not selected to follow this timeframe
-            }
-            if (s.status === '等') {
-              const sigTime = s.triggerTime || s.openTime;
+            // 规则 1：版本、币种、周期必须处于勾选开启状态
+            if (!this.settings.followVersions.includes(sVer)) return;
+            if (!this.settings.followCoins.includes(sCoin)) return;
+            if (!this.settings.followTimeframes.includes(sTf)) return;
 
-              // 【核心拦截】：信号发出时间必须在模拟下单开启时间之后！
-              // 开启前发出、还未完结的信号，开启后绝不跟单建仓，只统计开启时发出信号的订单！
-              if (!sigTime || sigTime < this.settings.enabledAt) {
+            if (s.status === '等') {
+              // 规则 2【黑名单拦截】：任何开关开启前就已经存在的未完结信号，绝不跟单！
+              if (this.ignoredSignalIds && this.ignoredSignalIds.has(s.id)) {
                 return;
               }
 
+              const sigTime = s.triggerTime || s.openTime;
+              if (!sigTime) return;
+
+              // 规则 3【总开关时间拦截】：信号发出时间必须晚于总开关开启时间，且在当前会话内
+              if (sigTime < this.settings.enabledAt || sigTime < this.sessionStartedAt) {
+                return;
+              }
+
+              // 规则 4【版本独立时间拦截】：信号发出时间必须晚于该版本被勾选开启的时间
+              const verEnabledAt = this.settings.versionEnabledAt && this.settings.versionEnabledAt[sVer];
+              if (verEnabledAt && sigTime < verEnabledAt) {
+                return;
+              }
+
+              // 规则 5【周期独立时间拦截】：信号发出时间必须晚于该周期被勾选开启的时间
+              const tfEnabledAt = this.settings.timeframeEnabledAt && this.settings.timeframeEnabledAt[sTf];
+              if (tfEnabledAt && sigTime < tfEnabledAt) {
+                return;
+              }
+
+              // 规则 6【币种独立时间拦截】：信号发出时间必须晚于该币种被勾选开启的时间
+              const coinEnabledAt = this.settings.coinEnabledAt && this.settings.coinEnabledAt[sCoin];
+              if (coinEnabledAt && sigTime < coinEnabledAt) {
+                return;
+              }
+
+              // 规则 7【下单黄金时效严格拦截】：
+              // 信号从发出到现在如果已经超过 20 秒，视为“已过下单黄金时间”，坚决不跟单！
+              const elapsedMs = now - sigTime;
+              if (elapsedMs > (this.MAX_ENTRY_DELAY_MS || 20000) || elapsedMs < -5000) {
+                return;
+              }
+
+              // 规则 8【剩余结算时间拦截】：剩余时间若少于总时长的 85%，说明早已错过入场点位，不再建仓
+              const tfDuration = this.getTfMs(sTf);
+              if (s.settleTime && (s.settleTime - now) < (tfDuration * 0.85)) {
+                return;
+              }
+
+              // 规则 9：防重复建仓
               const alreadyOrdered = this.orders.some(o => o.sigId === s.id);
-              const isRecent = (Date.now() - sigTime) < 180000;
-              if (!alreadyOrdered && isRecent) {
+              if (!alreadyOrdered) {
                 this.createOrderFromSignal(s);
                 changed = true;
               }
@@ -6735,12 +6861,7 @@
         this.orders.forEach(order => {
           const tr = document.createElement('tr');
 
-          const date = new Date(order.createTime);
-          const timeStr = [
-            String(date.getHours()).padStart(2, '0'),
-            String(date.getMinutes()).padStart(2, '0'),
-            String(date.getSeconds()).padStart(2, '0')
-          ].join(':');
+          const timeStr = formatBeijingTime(order.createTime);
 
           const ver = order.version || 'official';
           const verBadge = ver === 'trend'
@@ -6973,10 +7094,10 @@
     loadSignalPredictions();
     loadNotifications();
 
-    setInterval(fetchCurrentPrice, 800);       // High-frequency spot price tick poller (800ms)
-    setInterval(loadKlinesData, 1200);          // uiKlines fast candle polling (1.2s)
-    setInterval(loadSignalPredictions, 2500);   // MTF Predictions polling (2.5s)
-    setInterval(loadNotifications, 2000);       // Notifications polling (2s)
+    setInterval(fetchCurrentPrice, 1000);       // High-frequency spot price tick poller (1s)
+    setInterval(loadKlinesData, 2500);          // uiKlines candle polling (2.5s)
+    setInterval(loadSignalPredictions, 3000);   // MTF Predictions polling (3s)
+    setInterval(loadNotifications, 2500);       // Notifications polling (2.5s)
     setInterval(updateLiveCountdowns, 1000);    // Live second-by-second countdown ticker (1s)
   </script>
 </body>

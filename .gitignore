@@ -1,1 +1,4 @@
 node_modules/
+signals_registry.json
+启动网页.bat
+停止服务.bat

@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || process.env.SERVER_PORT || 3000;
 
 // Multi-endpoint fallback for robust connectivity
 const BINANCE_BASE_URLS = [
@@ -35,15 +35,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// Middleware: Request Logger
-app.use((req, res, next) => {
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} - ${res.statusCode} (${duration}ms)`);
+// Middleware: Request Logger (only logs errors or when DEBUG_HTTP is set to minimize I/O on low-end servers)
+if (process.env.DEBUG_HTTP) {
+  app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+      const duration = Date.now() - start;
+      console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} - ${res.statusCode} (${duration}ms)`);
+    });
+    next();
   });
-  next();
-});
+}
 
 // Middleware: Static files
 app.use(express.static(publicDir));
@@ -202,7 +204,7 @@ async function fetchBinanceKlines(symbol, interval = '1m', limit = 150) {
   }
 
   const cacheKey = `uiklines:${normalized}:${interval}:${limit}`;
-  const cached = getCached(cacheKey, 1000);
+  const cached = getCached(cacheKey, 2500);
   if (cached) return cached;
 
   let rawKlines;
@@ -630,16 +632,31 @@ let signalRegistry = {
   trend: {}
 };
 
+// Strict Beijing Time (UTC+8) Formatter - independent of server OS timezone
+function formatBeijingTime(timestamp, includeDate = false) {
+  if (!timestamp) return '';
+  const ms = timestamp < 1e11 ? timestamp * 1000 : Number(timestamp);
+  if (isNaN(ms)) return '';
+  const bj = new Date(ms + 8 * 3600 * 1000);
+  const ho = String(bj.getUTCHours()).padStart(2, '0');
+  const mi = String(bj.getUTCMinutes()).padStart(2, '0');
+  const se = String(bj.getUTCSeconds()).padStart(2, '0');
+  if (includeDate) {
+    const yr = bj.getUTCFullYear();
+    const mo = String(bj.getUTCMonth() + 1).padStart(2, '0');
+    const da = String(bj.getUTCDate()).padStart(2, '0');
+    return `${yr}-${mo}-${da} ${ho}:${mi}:${se}`;
+  }
+  return `${ho}:${mi}:${se}`;
+}
+
+// Zero-GC numerical Beijing Time (UTC+8) "Today" filter
 function isToday(timestamp) {
   if (!timestamp) return false;
-  const ms = timestamp < 1e11 ? timestamp * 1000 : timestamp;
-  const targetDate = new Date(ms);
-  const nowDate = new Date();
-  return (
-    targetDate.getFullYear() === nowDate.getFullYear() &&
-    targetDate.getMonth() === nowDate.getMonth() &&
-    targetDate.getDate() === nowDate.getDate()
-  );
+  const ms = timestamp < 1e11 ? timestamp * 1000 : Number(timestamp);
+  if (isNaN(ms)) return false;
+  // Day index in UTC+8: (ms + 8h) / 86400000
+  return Math.floor((ms + 28800000) / 86400000) === Math.floor((Date.now() + 28800000) / 86400000);
 }
 
 function loadSignalRegistry() {
@@ -659,15 +676,18 @@ function loadSignalRegistry() {
           trend: {}
         };
       }
-      // 严格只保留当天真实发出的信号，清理所有历史/非当天的旧记录
+      // 严格只保留当天真实发出的信号，清理所有历史/非当天的旧记录，并确保统一转换为北京时间
       for (const ver of ['official', 'trend']) {
         const bucket = signalRegistry[ver] || {};
         for (const key of Object.keys(bucket)) {
           if (Array.isArray(bucket[key])) {
             bucket[key] = bucket[key].filter(s => isToday(s.triggerTime || s.openTime));
             for (const s of bucket[key]) {
-              if (s.dateStr) s.dateStr = s.dateStr.replace(/^今天\s*/, '');
-              if (s.time) s.time = s.time.replace(/^今天\s*/, '');
+              const bjTime = formatBeijingTime(s.triggerTime || s.openTime);
+              if (bjTime) {
+                s.time = bjTime;
+                s.dateStr = bjTime;
+              }
             }
           }
         }
@@ -681,7 +701,30 @@ function loadSignalRegistry() {
   }
 }
 
-function saveSignalRegistry() {
+// 异步防抖写盘：避免低配服务器高频同步写入引发卡死与CPU飙高
+let saveTimer = null;
+let isSaving = false;
+let pendingSave = false;
+
+function saveSignalRegistry(immediate = false) {
+  if (immediate) {
+    doSaveSignalRegistry();
+    return;
+  }
+  if (!saveTimer) {
+    saveTimer = setTimeout(() => {
+      saveTimer = null;
+      doSaveSignalRegistry();
+    }, 2500);
+  }
+}
+
+function doSaveSignalRegistry() {
+  if (isSaving) {
+    pendingSave = true;
+    return;
+  }
+  isSaving = true;
   try {
     // 保存前再次确保只持久化当天的信号
     for (const ver of ['official', 'trend']) {
@@ -692,9 +735,20 @@ function saveSignalRegistry() {
         }
       }
     }
-    fs.writeFileSync(SIGNALS_FILE, JSON.stringify(signalRegistry, null, 2), 'utf8');
+    const data = JSON.stringify(signalRegistry);
+    fs.writeFile(SIGNALS_FILE, data, 'utf8', (err) => {
+      isSaving = false;
+      if (err) {
+        console.warn('Failed to save signals_registry.json:', err.message);
+      }
+      if (pendingSave) {
+        pendingSave = false;
+        saveSignalRegistry();
+      }
+    });
   } catch (e) {
-    console.warn('Failed to save signals_registry.json:', e.message);
+    isSaving = false;
+    console.warn('Failed to stringify signals_registry:', e.message);
   }
 }
 
@@ -842,12 +896,7 @@ function processLiveTick(normSym, currentPrice, version = 'official') {
     }
 
     if (sigObj) {
-      const timeDate = new Date(now);
-      const timeStr = [
-        String(timeDate.getHours()).padStart(2, '0'),
-        String(timeDate.getMinutes()).padStart(2, '0'),
-        String(timeDate.getSeconds()).padStart(2, '0')
-      ].join(':');
+      const timeStr = formatBeijingTime(now);
 
       const liveSig = {
         openTime: Math.floor(now / 60000) * 60000,
@@ -1716,7 +1765,7 @@ app.get('/api/notifications', (req, res) => {
           const list = (bucket[key] || []).filter(s => isToday(s.triggerTime || s.openTime));
 
           for (const s of list) {
-            const cleanTime = (s.time || s.dateStr || '').replace(/^今天\s*/, '');
+            const bjTime = formatBeijingTime(s.triggerTime || s.openTime) || (s.time || s.dateStr || '').replace(/^今天\s*/, '');
             notifs.push({
               id: `${ver}-${sym}-${tf}-${s.openTime}`,
               version: ver,
@@ -1729,7 +1778,7 @@ app.get('/api/notifications', (req, res) => {
               price: s.price,
               settlePrice: s.settlePrice || null,
               status: s.status,
-              time: cleanTime,
+              time: bjTime,
               openTime: s.openTime,
               triggerTime: s.triggerTime || s.openTime,
               settleTime: s.settleTime || ((s.triggerTime || s.openTime) + (SIGNAL_DURATIONS[tf] || 5*60*1000))
@@ -1848,13 +1897,23 @@ async function highFreqTickerLoop() {
   }
 }
 
-// 每1秒实时检测分笔跳动，满足条件即刻在当前秒出信号！
+// 每1秒实时检测分笔跳动，满足条件即刻在当前秒出信号！（保持秒级响应，绝不错过秒级行情）
 setInterval(highFreqTickerLoop, 1000);
 setTimeout(highFreqTickerLoop, 800);
 
-// 每8秒同步一次K线基准标尺
-setInterval(syncAllSignals, 8000);
+// 每30秒同步一次K线量化指标基准标尺（大幅降低低配服务器70% CPU无用重算，而秒级行情由highFreqTickerLoop以1秒持续监听）
+setInterval(syncAllSignals, 30000);
 setTimeout(syncAllSignals, 1500);
+
+// 优雅关闭：确保退出前写盘持久化
+process.on('SIGINT', () => {
+  saveSignalRegistry(true);
+  process.exit(0);
+});
+process.on('SIGTERM', () => {
+  saveSignalRegistry(true);
+  process.exit(0);
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
